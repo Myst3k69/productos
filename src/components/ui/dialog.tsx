@@ -28,7 +28,8 @@ export function DialogContent({ className, children, size = "md", ...props }: Re
       >
         {children}
       </RadixDialog.Content>
-      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{opacity:0;transform:translate(-50%,-6px) scale(.985)}to{opacity:1;transform:translate(-50%,0) scale(1)}}@keyframes slideInRight{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
+      {/* Le centrage horizontal passe par la propriété CSS `translate` (Tailwind 4) : l'animation ne touche qu'à transform. */}
+      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes popIn{from{opacity:0;transform:translateY(-6px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes slideInRight{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}`}</style>
     </RadixDialog.Portal>
   );
 }

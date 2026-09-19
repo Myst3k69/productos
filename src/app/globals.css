@@ -186,12 +186,15 @@ h3,
   font-variant-numeric: tabular-nums;
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
+/* Dans la couche base : sinon ce `color: inherit` (non stratifié) écrase les utilitaires text-* des boutons. */
+@layer base {
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
 }
 
 :focus-visible {
