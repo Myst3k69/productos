@@ -37,6 +37,11 @@ export function TaskDrawer() {
         <SheetContent
           width={720}
           aria-describedby={undefined}
+          onOpenAutoFocus={(e) => {
+            // Focus sur le panneau lui-même (pas sur le titre éditable) : pas d'anneau de focus intempestif à l'ouverture.
+            e.preventDefault();
+            (e.currentTarget as HTMLElement | null)?.focus?.();
+          }}
           onEscapeKeyDown={(e) => {
             // Échap dans un champ : on quitte le champ, on ne ferme pas le panneau.
             const el = document.activeElement as HTMLElement | null;

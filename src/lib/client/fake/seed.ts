@@ -531,7 +531,7 @@ function materialize(db: FakeDb, project: Project, s: SeedTask, now: number, ord
     let integration = sc.integration;
     if (s.integrationPr) {
       const url = `https://github.com/nomad-desk/app/pull/${(Math.floor(r() * 80) + 12).toString()}`;
-      integration = { kind: "pr", summary: "Pull request ouverte puis fusionnée sur GitHub.", links: [{ label: "Pull request", url }], details: [`Branche ${sc.branch} poussée`, "3 fichiers · +58 −1", "CI : ✓ 3 jobs"] };
+      integration = { kind: "pr", summary: "Pull request ouverte puis fusionnée sur GitHub.", links: [{ label: "Pull request", url }], details: [`Branche ${sc.branch} poussée`, "3 fichiers · +46 −1", "CI : ✓ 3 jobs"] };
       db.addArtifact({ taskId: id, kind: "pr", title: "Pull request", url, path: null, mime: null, size: null, content: null });
     } else if (integration.kind === "folder") {
       db.addArtifact({ taskId: id, kind: "folder", title: integration.links[0]?.label ?? "Dossier", url: integration.links[0]?.url ?? null, path: null, mime: null, size: null, content: null });

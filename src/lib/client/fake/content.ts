@@ -468,8 +468,8 @@ function verifyScriptFor(type: TaskType, repo: boolean, artifacts: ArtifactSeed[
 /* ─────────────────────────── Artefacts ─────────────────────────── */
 
 function artifactsFor(type: TaskType, task: Task, project: Project, name: string, slug: string, repo: boolean): ArtifactSeed[] {
-  if (type === "code" && repo) return [{ kind: "diff", title: `3 fichiers · +71 −2`, content: codeDiff(task, name), mime: "text/x-diff", size: 2400, path: null, url: null }];
-  if (type === "ops" && repo) return [{ kind: "diff", title: `3 fichiers · +58 −1`, content: opsDiff(task), mime: "text/x-diff", size: 1900, path: null, url: null }];
+  if (type === "code" && repo) return [{ kind: "diff", title: `3 fichiers · +55 −1`, content: codeDiff(task, name), mime: "text/x-diff", size: 2400, path: null, url: null }];
+  if (type === "ops" && repo) return [{ kind: "diff", title: `3 fichiers · +46 −1`, content: opsDiff(task), mime: "text/x-diff", size: 1900, path: null, url: null }];
   const md = (title: string, content: string): ArtifactSeed => ({ kind: "file", title, content, mime: "text/markdown", size: content.length, path: null, url: null });
   switch (type) {
     case "research":
@@ -564,10 +564,10 @@ function integrationFor(type: TaskType, project: Project, branch: string, slug: 
     const mode = project.integrations.git.mode;
     if (mode === "pr") {
       const url = `https://github.com/${slugify(project.name)}/app/pull/${(hashStr(branch) % 90) + 10}`;
-      return { kind: "pr", summary: "Pull request ouverte sur GitHub.", links: [{ label: "Pull request", url }], details: [`Branche ${branch} poussée`, "3 fichiers · +71 −2", "CI : en cours"] };
+      return { kind: "pr", summary: "Pull request ouverte sur GitHub.", links: [{ label: "Pull request", url }], details: [`Branche ${branch} poussée`, "3 fichiers · +55 −1", "CI : en cours"] };
     }
     if (mode === "branch") return { kind: "branch", summary: `Branche « ${branch} » prête à être récupérée.`, links: [], details: [`git checkout ${branch}`] };
-    return { kind: "merge", summary: `Modifications fusionnées dans « ${project.baseBranch} ».`, links: [], details: [`Commit ${fakeHash(branch)}`, "3 fichiers · +71 −2", `Fusionné dans ${project.baseBranch} (--no-ff)`] };
+    return { kind: "merge", summary: `Modifications fusionnées dans « ${project.baseBranch} ».`, links: [], details: [`Commit ${fakeHash(branch)}`, "3 fichiers · +55 −1", `Fusionné dans ${project.baseBranch} (--no-ff)`] };
   }
   const folder = `${project.integrations.folder.subdir}/${slug}`;
   return {
