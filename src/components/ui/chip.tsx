@@ -50,7 +50,7 @@ export function FilterChip({ active, className, children, ...props }: React.Butt
       type="button"
       aria-pressed={active}
       className={cn(
-        "inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[12.5px] font-medium transition-colors",
+        "inline-flex h-7 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 text-[12.5px] font-medium transition-colors",
         active ? "border-ink bg-ink text-paper" : "border-line-2 bg-card text-ink-2 hover:border-line-3 hover:text-ink",
         className,
       )}

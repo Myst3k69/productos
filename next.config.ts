@@ -1,12 +1,10 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: [
-    "@anthropic-ai/claude-agent-sdk",
-    "@libsql/client",
-    "libsql",
-  ],
+  turbopack: { root: path.resolve(process.cwd()) },
+  serverExternalPackages: ["@anthropic-ai/claude-agent-sdk", "@libsql/client", "libsql"],
   experimental: {
     serverActions: { bodySizeLimit: "4mb" },
   },
