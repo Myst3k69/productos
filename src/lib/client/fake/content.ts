@@ -587,7 +587,7 @@ new file mode 100644
 index 0000000..3f2a1b4
 --- /dev/null
 +++ b/src/components/${name}.tsx
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,34 @@
 +import Link from "next/link";
 +
 +const STEPS = [
@@ -627,7 +627,7 @@ new file mode 100644
 index 0000000..a1b2c3d
 --- /dev/null
 +++ b/src/components/${name}.test.tsx
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,19 @@
 +import { render, screen } from "@testing-library/react";
 +import { ${name} } from "./${name}";
 +
@@ -651,11 +651,11 @@ diff --git a/src/app/page.tsx b/src/app/page.tsx
 index 8a1c2d3..9b2d3e4 100644
 --- a/src/app/page.tsx
 +++ b/src/app/page.tsx
-@@ -1,12 +1,14 @@
+@@ -1,12 +1,13 @@
  import { Hero } from "@/components/Hero";
 +import { ${name} } from "@/components/${name}";
  import { Footer } from "@/components/Footer";
-
+ 
  export default function HomePage() {
    return (
      <main>
@@ -675,7 +675,7 @@ new file mode 100644
 index 0000000..7c1e9aa
 --- /dev/null
 +++ b/.github/workflows/deploy.yml
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,32 @@
 +name: Deploy
 +
 +on:
@@ -713,7 +713,7 @@ new file mode 100644
 index 0000000..1f0e2d3
 --- /dev/null
 +++ b/vercel.json
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,6 @@
 +{
 +  "regions": ["cdg1"],
 +  "redirects": [
@@ -724,10 +724,10 @@ diff --git a/README.md b/README.md
 index 2b3c4d5..6e7f8a9 100644
 --- a/README.md
 +++ b/README.md
-@@ -12,3 +12,13 @@ pnpm dev
-
+@@ -12,4 +12,11 @@ pnpm dev
+ 
  ## Tests
-
+ 
 -pnpm test
 +pnpm test
 +

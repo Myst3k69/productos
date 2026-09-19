@@ -4,26 +4,10 @@ import * as React from "react";
 import type { Task } from "@/lib/domain/types";
 import { STATUS_META } from "@/lib/domain/types";
 import { STAGE_META } from "@/lib/domain/stages";
-import { cn, shortDateTime, timeAgo } from "@/lib/client/utils";
+import { cn, shortDateTime, timeAgoCompact } from "@/lib/client/utils";
 import { CostChip, DueChip, PriorityMark, StagePill, StatusBadge, TypeIcon } from "@/components/shared/task-bits";
 
 const MAX_LABELS = 2;
-
-/** Unités abrégées pour tenir dans la colonne : « il y a 4 h », « il y a 23 min ». */
-const COMPACT_UNITS: [RegExp, string][] = [
-  [/\bsecondes?\b/, "s"],
-  [/\bminutes?\b/, "min"],
-  [/\bheures?\b/, "h"],
-  [/\bjours?\b/, "j"],
-  [/\bsemaines?\b/, "sem."],
-  [/\bmois\b/, "mois"],
-];
-
-function compactAgo(iso: string, now: number): string {
-  let s = timeAgo(iso, new Date(now));
-  for (const [re, abbr] of COMPACT_UNITS) s = s.replace(re, abbr);
-  return s;
-}
 
 export interface ListRowProps {
   task: Task;
@@ -154,7 +138,7 @@ export const ListRow = React.memo(function ListRow({ task, index, checked, activ
       {/* Mise à jour */}
       <td className="h-10 whitespace-nowrap pl-2 pr-4 text-right align-middle">
         <time className="num font-mono text-[11.5px] text-ink-3" dateTime={task.updatedAt} title={shortDateTime(task.updatedAt)}>
-          {compactAgo(task.updatedAt, now)}
+          {timeAgoCompact(task.updatedAt, new Date(now))}
         </time>
       </td>
     </tr>

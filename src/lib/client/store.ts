@@ -91,6 +91,8 @@ interface AppState {
   updateSettings(patch: Partial<AppSettings>): Promise<void>;
   testAI(): Promise<{ ok: boolean; detail: string; model?: string; latencyMs?: number }>;
   seedDemo(): Promise<void>;
+  /** Efface puis re-sème la démo sans passer par l'écran d'accueil. */
+  reloadDemo(): Promise<void>;
   resetAll(): Promise<void>;
 }
 
@@ -360,6 +362,16 @@ export const useStore = create<AppState>()((set, get) => ({
     for (const t of data.tasks) tasks[t.id] = t;
     set({ projects: data.projects, tasks, settings: data.settings, ai: data.ai });
     get().setProject(project.id);
+  },
+  async reloadDemo() {
+    if (!source) return;
+    await source.reset();
+    const { project } = await source.seedDemo();
+    const data = await source.bootstrap();
+    const tasks: Record<string, Task> = {};
+    for (const t of data.tasks) tasks[t.id] = t;
+    writeLocal(PROJECT_KEY, project.id);
+    set({ projects: data.projects, tasks, events: {}, artifacts: {}, detailLoaded: {}, settings: data.settings, ai: data.ai, projectId: project.id, selectedTaskId: null, filters: EMPTY_FILTERS });
   },
   async resetAll() {
     if (!source) return;

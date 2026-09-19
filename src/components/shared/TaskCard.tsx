@@ -7,7 +7,7 @@ import type { Task } from "@/lib/domain/types";
 import { STATUS_META } from "@/lib/domain/types";
 import { STAGE_META } from "@/lib/domain/stages";
 import { useStore, type DrawerTab } from "@/lib/client/store";
-import { cn, shortDateTime, timeAgo } from "@/lib/client/utils";
+import { cn, shortDateTime, timeAgoCompact } from "@/lib/client/utils";
 import { Button } from "@/components/ui/button";
 import { ActivityLine, CostChip, DueChip, PriorityMark, ProgressRail, StatusIcon, TypeChip, statusTone } from "@/components/shared/task-bits";
 
@@ -22,21 +22,6 @@ const TONE_TEXT: Record<ReturnType<typeof statusTone>, string> = {
 };
 
 const MAX_LABELS = 3;
-
-/** Unités abrégées pour tenir sur une ligne : « il y a 4 h », « il y a 23 min ». */
-const COMPACT_UNITS: [RegExp, string][] = [
-  [/\bsecondes?\b/, "s"],
-  [/\bminutes?\b/, "min"],
-  [/\bheures?\b/, "h"],
-  [/\bjours?\b/, "j"],
-  [/\bsemaines?\b/, "sem."],
-];
-
-function compactAgo(iso: string): string {
-  let s = timeAgo(iso);
-  for (const [re, abbr] of COMPACT_UNITS) s = s.replace(re, abbr);
-  return s;
-}
 
 export interface TaskCardProps extends Omit<React.HTMLAttributes<HTMLElement>, "onClick"> {
   task: Task;
@@ -245,7 +230,7 @@ export function TaskCard({ task, onOpen, dimmed, overlay, ghost, className, onKe
         <DueChip dueDate={task.dueDate} done={done} className="shrink-0 whitespace-nowrap" />
         <CostChip usd={task.costUsd} className="shrink-0 whitespace-nowrap" />
         <time className="ml-auto min-w-0 truncate font-mono text-[11px] text-ink-4" dateTime={task.updatedAt} title={`Mis à jour ${shortDateTime(task.updatedAt)}`}>
-          {compactAgo(task.updatedAt)}
+          {timeAgoCompact(task.updatedAt)}
         </time>
       </div>
 

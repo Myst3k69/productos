@@ -16,7 +16,7 @@ const TICKS = [0.5, 1, 2, 3, 4];
 
 export function PrototypeSection({ index }: { index: number }) {
   const mockSpeed = useStore((s) => s.settings.mockSpeed);
-  const seedDemo = useStore((s) => s.seedDemo);
+  const reloadDemo = useStore((s) => s.reloadDemo);
   const resetAll = useStore((s) => s.resetAll);
   const save = useSaveSettings();
   const router = useRouter();
@@ -44,8 +44,7 @@ export function PrototypeSection({ index }: { index: number }) {
   const reload = async () => {
     setBusy(true);
     try {
-      await resetAll();
-      await seedDemo();
+      await reloadDemo();
       toast.success("Démo rechargée", { description: "Le jeu de données est revenu à son état initial." });
       setConfirm(null);
       router.push("/board");

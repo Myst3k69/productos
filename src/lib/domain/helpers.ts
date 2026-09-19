@@ -84,15 +84,24 @@ export function titleFromSpec(spec: string): string {
 }
 
 /** Heuristique locale de détection de type (avant passage de l'IA). */
+const TYPE_KEYWORDS: [Task["type"], string[]][] = [
+  ["ops", ["deploy", "déploiement", "déployer", "docker", "ci/cd", "pipeline", "monitoring", "vercel", "infra", "dns", "domaine", "github actions"]],
+  ["code", ["endpoint", "api", "composant", "component", "bug", "fix", "correctif", "refactor", "fonctionnalité", "feature", "tests?", "sql", "react", "next\\.?js", "typescript", "python", "script", "migration", "auth", "login", "page", "formulaire", "backend", "frontend", "base de données", "supabase"]],
+  ["research", ["étude de marché", "benchmark", "concurrents?", "concurrentiel(?:le)?", "veille", "recherche", "analyse du marché", "interviews?", "personas?", "sondage"]],
+  ["marketing", ["landing", "emails?", "newsletter", "posts?", "linkedin", "seo", "copy", "slogan", "campagne", "publicité", "ads", "pitch", "communiqué", "presse", "séquence"]],
+  ["design", ["maquettes?", "wireframes?", "logo", "charte", "ui", "ux", "figma", "design", "identité visuelle"]],
+  ["data", ["csv", "données", "data", "tableau de bord", "dashboard", "kpi", "métriques?", "excel", "analyse des"]],
+  ["document", ["document", "doc", "spec", "cahier", "procédure", "contrat", "cgv", "cgu", "rapport", "synthèse", "politique", "faq", "programme", "guide"]],
+];
+
+const TYPE_PATTERNS: [Task["type"], RegExp][] = TYPE_KEYWORDS.map(([type, words]) => [
+  type,
+  new RegExp(`(?<![\\p{L}\\p{N}])(?:${words.join("|")})(?![\\p{L}\\p{N}])`, "iu"),
+]);
+
+/** Heuristique locale de détection de type (avant passage de l'IA) — mots entiers uniquement. */
 export function guessTaskType(text: string): Task["type"] {
   const t = text.toLowerCase();
-  const has = (...words: string[]) => words.some((w) => t.includes(w));
-  if (has("endpoint", "api", "composant", "component", "bug", "fix", "refactor", "fonctionnalité", "feature", "test", "sql", "react", "next", "typescript", "python", "script", "migration", "auth", "login", "page ")) return "code";
-  if (has("deploy", "déploi", "docker", "ci/cd", "pipeline", "monitoring", "vercel", "infra", "dns", "domaine")) return "ops";
-  if (has("étude de marché", "benchmark", "concurren", "veille", "recherche", "analyse du marché", "interview", "persona")) return "research";
-  if (has("landing", "email", "newsletter", "post", "linkedin", "seo", "copy", "slogan", "campagne", "publicité", "ads", "pitch")) return "marketing";
-  if (has("maquette", "wireframe", "logo", "charte", "ui", "ux", "figma", "design")) return "design";
-  if (has("csv", "données", "data", "tableau de bord", "dashboard", "kpi", "métrique", "excel")) return "data";
-  if (has("document", "doc ", "spec", "cahier", "procédure", "contrat", "cgv", "cgu", "rapport", "synthèse", "plan ")) return "document";
+  for (const [type, re] of TYPE_PATTERNS) if (re.test(t)) return type;
   return "other";
 }

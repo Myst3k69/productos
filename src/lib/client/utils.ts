@@ -16,6 +16,21 @@ export function timeAgo(iso: string | null | undefined, now = new Date()): strin
   return `il y a ${formatDistanceToNowStrict(d, { locale: fr, roundingMethod: "floor" })}`;
 }
 
+const COMPACT_UNITS: [RegExp, string][] = [
+  [/\bsecondes?\b/, "s"],
+  [/\bminutes?\b/, "min"],
+  [/\bheures?\b/, "h"],
+  [/\bjours?\b/, "j"],
+  [/\bsemaines?\b/, "sem."],
+];
+
+/** Version abrégée de timeAgo pour tenir sur une ligne : « il y a 4 h », « il y a 23 min ». */
+export function timeAgoCompact(iso: string | null | undefined, now = new Date()): string {
+  let s = timeAgo(iso, now);
+  for (const [re, abbr] of COMPACT_UNITS) s = s.replace(re, abbr);
+  return s;
+}
+
 /** « aujourd'hui », « demain », « mar. 24 sept. » */
 export function humanDay(iso: string | null | undefined): string {
   if (!iso) return "";
