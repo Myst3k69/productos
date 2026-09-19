@@ -11,8 +11,8 @@ import { cn, modKey } from "@/lib/client/utils";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/misc";
 import { StagePill, StatusBadge, TypeIcon } from "@/components/shared/task-bits";
+import { useTheme } from "@/components/shell/theme";
 
-const THEME_KEY = "atelier.theme";
 const MAX_TASKS = 8;
 
 const VIEWS = [
@@ -48,10 +48,9 @@ function PaletteContent() {
   const attention = useAttentionCount();
 
   const [search, setSearch] = React.useState("");
-  const [dark, setDark] = React.useState(false);
-  React.useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
+  /* Même source de vérité que la barre du haut : bascule .dark + localStorage « atelier.theme ». */
+  const { resolved, toggle: toggleTheme } = useTheme();
+  const dark = resolved === "dark";
 
   const query = search.trim();
 
@@ -59,16 +58,6 @@ function PaletteContent() {
   const run = (fn: () => void) => {
     useStore.getState().togglePalette(false);
     fn();
-  };
-
-  const toggleTheme = () => {
-    const next = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", next);
-    try {
-      window.localStorage.setItem(THEME_KEY, next ? "dark" : "light");
-    } catch {
-      /* stockage indisponible */
-    }
   };
 
   const showAttention = () => {

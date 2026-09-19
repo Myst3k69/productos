@@ -17,24 +17,52 @@ import { Field, Input, Segmented, Select, Switch, Textarea } from "@/components/
 import { Kbd } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { PriorityMark, TypeIcon, stageTone } from "@/components/shared/task-bits";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { insertTemplate, isOnlyTemplate, templateOutline, wordCount } from "./templates";
 
 /**
  * Composeur de tâche — l'entrée principale du produit.
  * « J'ajoute une tâche avec ses spécifications, l'IA prend la main. »
+ * Un brouillon entamé n'est jamais perdu par mégarde : Échap, clic dehors ou « Annuler » demandent confirmation.
  */
 export function NewTaskDialog() {
   const open = useStore((s) => s.composerOpen);
   const closeComposer = useStore((s) => s.closeComposer);
+  const dirtyRef = React.useRef<() => boolean>(() => false);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+
+  const requestClose = React.useCallback(() => {
+    if (dirtyRef.current()) setConfirmOpen(true);
+    else closeComposer();
+  }, [closeComposer]);
+
+  React.useEffect(() => {
+    if (!open) setConfirmOpen(false);
+  }, [open]);
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => {
-        if (!o) closeComposer();
-      }}
-    >
-      {open ? <ComposerContent /> : null}
-    </Dialog>
+    <>
+      <Dialog
+        open={open}
+        onOpenChange={(o) => {
+          if (!o) requestClose();
+        }}
+      >
+        {open ? <ComposerContent dirtyRef={dirtyRef} onCancel={requestClose} /> : null}
+      </Dialog>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Abandonner cette tâche ?"
+        description="Le titre et la spécification que vous avez saisis seront perdus."
+        confirmLabel="Abandonner"
+        cancelLabel="Continuer la rédaction"
+        onConfirm={() => {
+          setConfirmOpen(false);
+          closeComposer();
+        }}
+      />
+    </>
   );
 }
 
@@ -49,7 +77,7 @@ function isoDay(d: Date): string {
 }
 
 /* Le contenu est monté à chaque ouverture : l'état repart du brouillon fourni. */
-function ComposerContent() {
+function ComposerContent({ dirtyRef, onCancel }: { dirtyRef: React.RefObject<() => boolean>; onCancel: () => void }) {
   const draft = useStore((s) => s.composerDraft);
   const project = useCurrentProject();
   const projectLabels = useProjectLabels();
@@ -87,6 +115,15 @@ function ComposerContent() {
   const titleTooShort = title.trim().length < MIN_TITLE;
   const titleError = touched && titleTooShort ? `Donnez un titre d'au moins ${MIN_TITLE} caractères.` : null;
   const gates: Stage[] = effectiveAutonomy === "plan_gate" ? ["plan", "review"] : ["review"];
+
+  /* Brouillon entamé ? Sert à confirmer avant de fermer sans créer. */
+  const dirty = title.trim().length > 0 || !isOnlyTemplate(spec) || labels.length > 0;
+  React.useEffect(() => {
+    dirtyRef.current = () => dirty && !submitting;
+    return () => {
+      dirtyRef.current = () => false;
+    };
+  }, [dirtyRef, dirty, submitting]);
 
   const today = new Date();
   const quickDates = [
@@ -163,10 +200,14 @@ function ComposerContent() {
   };
 
   const onFormKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    if (e.key !== "Enter") return;
+    if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
       void submit();
+      return;
     }
+    /* Pas de soumission implicite depuis un champ simple (date, étiquette…) : seul Ctrl/⌘+Entrée crée la tâche. */
+    if ((e.target as HTMLElement).tagName === "INPUT") e.preventDefault();
   };
 
   return (
@@ -494,7 +535,7 @@ function ComposerContent() {
                 {submitError}
               </span>
             ) : null}
-            <Button type="button" variant="ghost" onClick={closeComposer} disabled={submitting}>
+            <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
               Annuler
             </Button>
             <Button type="submit" variant={willStart ? "ai" : "secondary"} loading={submitting} className={cn(willStart && "pl-3")}>
@@ -515,24 +556,32 @@ function ComposerContent() {
 /** Pastille « Détecté : Code » — cliquable pour forcer le type. */
 function TypeDetector({ type, detected, forced, open, onToggle }: { type: TaskType; detected: TaskType | null; forced: boolean; open: boolean; onToggle: () => void }) {
   const meta = TASK_TYPE_META[type];
-  const label = forced ? `Type : ${meta.label}` : detected ? `Détecté : ${meta.label}` : "Type détecté à la saisie";
+  /* Quatre états : forcé par vous, détecté d'après le texte, rien de probant (« Autre »), ou rien saisi. */
+  const state: "forced" | "detected" | "vague" | "empty" = forced ? "forced" : detected === null ? "empty" : detected === "other" ? "vague" : "detected";
+  const label = state === "forced" ? `Type : ${meta.label}` : state === "detected" ? `Détecté : ${meta.label}` : state === "vague" ? "Type : Autre" : "Type détecté à la saisie";
+  const hint = state === "empty" ? "D'après le titre et la spécification." : state === "vague" ? "Précisez-le : l'IA cadrera mieux." : meta.hint;
   return (
     <div className="flex min-w-0 items-center gap-2">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
+        title="Changer le type"
         className={cn(
           "inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full border px-2 text-[11.5px] font-medium transition-colors",
-          forced ? "border-ink bg-ink text-paper hover:bg-ink-2" : detected ? "border-ai/40 bg-ai-soft/70 text-ai-ink hover:border-ai/70" : "border-line-2 bg-card text-ink-3 hover:border-line-3 hover:text-ink",
+          state === "forced"
+            ? "border-ink bg-ink text-paper hover:bg-ink-2"
+            : state === "detected"
+              ? "border-ai/40 bg-ai-soft/70 text-ai-ink hover:border-ai/70"
+              : "border-line-2 bg-card text-ink-3 hover:border-line-3 hover:text-ink",
         )}
       >
         <TypeIcon type={type} className="h-3 w-3" />
         {label}
         <ChevronDown className={cn("h-3 w-3 transition-transform", open && "rotate-180")} aria-hidden />
       </button>
-      <span className="truncate text-[12px] text-ink-3" title={meta.hint}>
-        {meta.hint}
+      <span className="truncate text-[12px] text-ink-3" title={hint}>
+        {hint}
       </span>
     </div>
   );

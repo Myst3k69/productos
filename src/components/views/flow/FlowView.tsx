@@ -29,7 +29,7 @@ export function FlowView() {
   const all = useProjectTasks();
   const selectedId = useStore((s) => s.selectedTaskId);
   const filtersActive = useStore((s) => hasFilters(s.filters));
-  const [grouping, setGrouping] = React.useState<FlowGrouping>("stage");
+  const [grouping, setGrouping] = React.useState<FlowGrouping>("state");
   const now = useNow(30_000);
 
   const sorted = React.useMemo(() => sortFlow(tasks), [tasks]);
@@ -104,8 +104,8 @@ export function FlowView() {
           value={grouping}
           onChange={setGrouping}
           options={[
-            { value: "stage", label: "Par étape", title: "Une seule liste, de la plus avancée à la plus récente" },
             { value: "state", label: "Par état", title: "Regroupées : votre attention, en cours, à faire, terminé" },
+            { value: "stage", label: "Par étape", title: "Une seule liste, de la plus avancée à la plus récente" },
           ]}
         />
       </div>

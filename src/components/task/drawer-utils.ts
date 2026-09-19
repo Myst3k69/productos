@@ -100,3 +100,85 @@ export function asAnswers(data: Record<string, unknown> | null): Answer[] {
 export function asStrings(v: unknown): string[] {
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 }
+
+/* ─────────────────────────── Diff ─────────────────────────── */
+
+const HUNK_HEADER = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@(.*)$/;
+const FILE_HEADER = /^(diff |index |new file mode|deleted file mode|old mode|new mode|similarity index|dissimilarity index|rename from|rename to|copy from|copy to|Binary files)/;
+
+/**
+ * Répare un diff unifié avant analyse par `parse-diff`, qui se fie aux compteurs des
+ * en-têtes `@@` : un compteur faux ou une ligne de contexte vide (sans l'espace initial,
+ * souvent supprimé par les éditeurs) fait avaler les fichiers suivants dans le premier.
+ * On recompte chaque bloc et on rétablit l'espace des lignes de contexte vides.
+ */
+export function normalizeDiff(text: string): string {
+  const src = text.replace(/\r\n/g, "\n").split("\n");
+  const trailing = src.length > 1 && src[src.length - 1] === "";
+  const lines = trailing ? src.slice(0, -1) : src;
+  const out: string[] = [];
+
+  let headerAt = -1;
+  let meta: { oldStart: string; newStart: string; rest: string } | null = null;
+  let oldCount = 0;
+  let newCount = 0;
+
+  const flush = () => {
+    if (headerAt >= 0 && meta) out[headerAt] = `@@ -${meta.oldStart},${oldCount} +${meta.newStart},${newCount} @@${meta.rest}`;
+    headerAt = -1;
+    meta = null;
+    oldCount = 0;
+    newCount = 0;
+  };
+
+  const isFileHeader = (i: number): boolean => {
+    const l = lines[i];
+    if (FILE_HEADER.test(l)) return true;
+    if (l.startsWith("--- ") && (lines[i + 1]?.startsWith("+++ ") ?? false)) return true;
+    if (l.startsWith("+++ ") && i > 0 && lines[i - 1].startsWith("--- ")) return true;
+    return false;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    const hunk = HUNK_HEADER.exec(l);
+    if (hunk) {
+      flush();
+      headerAt = out.length;
+      meta = { oldStart: hunk[1], newStart: hunk[2], rest: hunk[3] };
+      out.push(l);
+      continue;
+    }
+    if (headerAt < 0) {
+      out.push(l);
+      continue;
+    }
+    if (isFileHeader(i)) {
+      flush();
+      out.push(l);
+      continue;
+    }
+    if (l === "") {
+      out.push(" ");
+      oldCount++;
+      newCount++;
+      continue;
+    }
+    const c = l[0];
+    if (c === "+") newCount++;
+    else if (c === "-") oldCount++;
+    else if (c === " ") {
+      oldCount++;
+      newCount++;
+    } else if (c !== "\\") {
+      // ligne sans préfixe : on la garde visible comme contexte
+      out.push(` ${l}`);
+      oldCount++;
+      newCount++;
+      continue;
+    }
+    out.push(l);
+  }
+  flush();
+  return out.join("\n") + (trailing ? "\n" : "");
+}

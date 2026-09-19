@@ -14,6 +14,26 @@ import { ActivityEvent } from "./ActivityEvent";
 
 const TECH_KINDS = new Set<TaskEvent["kind"]>(["tool_use", "tool_result", "thinking"]);
 const FOLLOW_THRESHOLD = 48;
+/** Préférence locale : afficher ou non les outils bruts de l'IA. */
+const TECH_KEY = "atelier.drawer.tech";
+
+function readTechPref(): boolean {
+  try {
+    if (typeof window === "undefined") return true;
+    const v = window.localStorage.getItem(TECH_KEY);
+    return v === null ? true : v === "1";
+  } catch {
+    return true;
+  }
+}
+
+function writeTechPref(v: boolean) {
+  try {
+    window.localStorage.setItem(TECH_KEY, v ? "1" : "0");
+  } catch {
+    /* stockage indisponible */
+  }
+}
 
 interface Group {
   key: string;
@@ -27,10 +47,15 @@ interface Group {
 export function ActivityTab({ task }: { task: Task }) {
   const events = useTaskEvents(task.id);
   const loaded = useStore((s) => s.detailLoaded[task.id] ?? false);
-  const [showTech, setShowTech] = React.useState(true);
+  const [showTech, setShowTechState] = React.useState(readTechPref);
   const [following, setFollowing] = React.useState(true);
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const running = task.status === "running" || task.status === "queued";
+
+  const setShowTech = (v: boolean) => {
+    setShowTechState(v);
+    writeTechPref(v);
+  };
 
   const groups = React.useMemo<Group[]>(() => {
     const out: Group[] = [];
@@ -88,7 +113,7 @@ export function ActivityTab({ task }: { task: Task }) {
         </p>
         <label className="inline-flex cursor-pointer select-none items-center gap-2 text-[12px] text-ink-2">
           Détails techniques
-          <Switch checked={showTech} onCheckedChange={setShowTech} label="Afficher les détails techniques" />
+          <Switch checked={showTech} onCheckedChange={setShowTech} label="Afficher les détails techniques (outils, réflexion)" />
         </label>
       </div>
 
@@ -125,7 +150,9 @@ export function ActivityTab({ task }: { task: Task }) {
                   ))}
                 </div>
               ) : (
-                <p className="px-5 py-1 text-[12px] italic text-ink-4">{running ? "Étape en cours…" : "Aucun détail pour cette étape."}</p>
+                <p className="px-5 py-1 text-[12px] italic text-ink-4">
+                  {running ? "Étape en cours…" : showTech ? "Aucun détail pour cette étape." : "Uniquement des détails techniques, masqués."}
+                </p>
               )}
             </section>
           ))

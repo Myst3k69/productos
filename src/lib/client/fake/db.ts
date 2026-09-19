@@ -28,23 +28,40 @@ export class FakeDb {
 
   /* ─────────────── Persistance ─────────────── */
 
+  /**
+   * Recharge l'état persisté. Retourne `true` dès qu'un état valide existe — même vide :
+   * un atelier volontairement effacé (« Tout effacer ») ne doit pas être re-semé avec la démo.
+   * `false` = première visite (ou état illisible) → la source sème le jeu de démonstration.
+   */
   load(): boolean {
     if (typeof window === "undefined") return false;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return false;
       const s = JSON.parse(raw) as FakeState;
-      if (s.version !== 1) return false;
+      if (s.version !== 1 || !Array.isArray(s.projects)) return false;
       this.projects = s.projects;
-      this.tasks = s.tasks;
-      this.events = s.events;
-      this.artifacts = s.artifacts;
+      this.tasks = s.tasks ?? [];
+      this.events = s.events ?? [];
+      this.artifacts = s.artifacts ?? [];
       this.settings = { ...DEFAULT_SETTINGS, ...s.settings };
-      this.nextEventId = s.nextEventId;
-      return this.projects.length > 0;
+      this.nextEventId = s.nextEventId ?? 1;
+      return true;
     } catch {
       return false;
     }
+  }
+
+  private snapshot(): FakeState {
+    return {
+      version: 1,
+      projects: this.projects,
+      tasks: this.tasks,
+      events: this.events,
+      artifacts: this.artifacts,
+      settings: this.settings,
+      nextEventId: this.nextEventId,
+    };
   }
 
   save(): void {
@@ -52,29 +69,28 @@ export class FakeDb {
     if (this.saveTimer) clearTimeout(this.saveTimer);
     this.saveTimer = setTimeout(() => {
       try {
-        const s: FakeState = {
-          version: 1,
-          projects: this.projects,
-          tasks: this.tasks,
-          events: this.events,
-          artifacts: this.artifacts,
-          settings: this.settings,
-          nextEventId: this.nextEventId,
-        };
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.snapshot()));
       } catch (err) {
         console.warn("[atelier] sauvegarde locale impossible", err);
       }
     }, 250);
   }
 
+  /** Efface projets, tâches, journaux et artefacts ; conserve les réglages. L'état vide est persisté immédiatement. */
   clear(): void {
+    if (this.saveTimer) clearTimeout(this.saveTimer);
+    this.saveTimer = null;
     this.projects = [];
     this.tasks = [];
     this.events = [];
     this.artifacts = [];
     this.nextEventId = 1;
-    if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.snapshot()));
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
   }
 
   /* ─────────────── Projets ─────────────── */

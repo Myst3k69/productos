@@ -4,6 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 
 export type Theme = "light" | "dark" | "system";
 const KEY = "atelier.theme";
+/* Événement local : chaque `useTheme()` (barre du haut, palette…) se resynchronise quand l'un d'eux change le thème. */
+const EVENT = "atelier:theme";
+
+function readStored(): Theme {
+  try {
+    const v = window.localStorage.getItem(KEY);
+    if (v === "light" || v === "dark") return v;
+  } catch {
+    /* ignore */
+  }
+  return "system";
+}
 
 function resolve(theme: Theme): "light" | "dark" {
   if (theme !== "system") return theme;
@@ -20,24 +32,25 @@ export function useTheme() {
   const [resolved, setResolved] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    let stored: Theme = "system";
-    try {
-      const v = window.localStorage.getItem(KEY);
-      if (v === "light" || v === "dark") stored = v;
-    } catch {
-      /* ignore */
-    }
-    setThemeState(stored);
-    setResolved(resolve(stored));
+    const sync = () => {
+      const stored = readStored();
+      setThemeState(stored);
+      setResolved(resolve(stored));
+    };
+    sync();
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
-      if (stored === "system") {
+      if (readStored() === "system") {
         applyTheme("system");
         setResolved(resolve("system"));
       }
     };
     mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    window.addEventListener(EVENT, sync);
+    return () => {
+      mq.removeEventListener("change", onChange);
+      window.removeEventListener(EVENT, sync);
+    };
   }, []);
 
   const setTheme = useCallback((t: Theme) => {
@@ -50,6 +63,7 @@ export function useTheme() {
       /* ignore */
     }
     applyTheme(t);
+    window.dispatchEvent(new Event(EVENT));
   }, []);
 
   const toggle = useCallback(() => setTheme(resolved === "dark" ? "light" : "dark"), [resolved, setTheme]);

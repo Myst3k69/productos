@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/client/utils";
 import { Chip } from "@/components/ui/chip";
 import { CodeView } from "./CodeView";
+import { normalizeDiff } from "./drawer-utils";
 
 type DiffFile = ReturnType<typeof parseDiff>[number];
 
@@ -13,7 +14,7 @@ type DiffFile = ReturnType<typeof parseDiff>[number];
 export const DiffViewer = React.memo(function DiffViewer({ content, className }: { content: string; className?: string }) {
   const files = React.useMemo(() => {
     try {
-      return parseDiff(content);
+      return parseDiff(normalizeDiff(content));
     } catch {
       return [];
     }

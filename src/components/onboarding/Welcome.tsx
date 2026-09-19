@@ -83,7 +83,7 @@ export function Welcome() {
           <StageFrieze className="mt-16 sm:mt-20" index={5} />
         </main>
 
-        <footer className="reveal flex flex-col gap-2 border-t border-line pt-5 text-[12px] text-ink-3 sm:flex-row sm:items-center sm:justify-between" style={rv(15)}>
+        <footer className="reveal flex flex-col gap-2 border-t border-line pt-5 text-[12px] text-ink-3 sm:flex-row sm:items-center sm:justify-between" style={rv(16)}>
           <span className="inline-flex items-center gap-1.5">
             <Lock className="h-3.5 w-3.5" aria-hidden />
             Prototype — IA simulée, aucune donnée ne quitte votre navigateur.

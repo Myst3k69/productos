@@ -6,11 +6,13 @@ import { toast } from "sonner";
 import type { Task } from "@/lib/domain/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAct } from "./hooks";
 
 /** Le moment HITL : valider et intégrer, demander des retouches ou refuser. */
 export function ReviewActions({ task }: { task: Task }) {
   const [comment, setComment] = React.useState("");
+  const [confirmReject, setConfirmReject] = React.useState(false);
   const { run, pending } = useAct(task.id);
   const trimmed = comment.trim();
   const busy = pending !== null;
@@ -28,9 +30,9 @@ export function ReviewActions({ task }: { task: Task }) {
     }
   };
   const reject = async () => {
-    if (!window.confirm("Refuser ce résultat ? La tâche retournera dans « À faire » et le travail de l'IA ne sera pas intégré.")) return;
     const res = await run({ action: "reject", comment: trimmed || undefined });
-    if (res) toast("Résultat refusé. La tâche est de retour dans « À faire ».");
+    setConfirmReject(false);
+    if (res) toast("Résultat refusé.", { description: "La tâche est de retour dans « À faire »." });
   };
 
   return (
@@ -52,17 +54,39 @@ export function ReviewActions({ task }: { task: Task }) {
           <Check className="h-3.5 w-3.5" />
           Valider et intégrer
         </Button>
-        <Button variant="secondary" size="sm" disabled={busy || !trimmed} loading={pending === "request_changes"} onClick={() => void requestChanges()} title={trimmed ? undefined : "Décrivez les retouches attendues dans le commentaire"}>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={busy || !trimmed}
+          loading={pending === "request_changes"}
+          onClick={() => void requestChanges()}
+          title={trimmed ? undefined : "Décrivez les retouches attendues dans le commentaire"}
+        >
           <Undo2 className="h-3.5 w-3.5" />
           Demander des retouches
         </Button>
         <span className="flex-1" />
-        <Button variant="danger" size="sm" disabled={busy} loading={pending === "reject"} onClick={() => void reject()}>
+        <Button variant="danger" size="sm" disabled={busy} onClick={() => setConfirmReject(true)}>
           <X className="h-3.5 w-3.5" />
           Refuser
         </Button>
       </div>
       {!trimmed ? <p className="mt-2 text-[11.5px] text-ink-4">Ajoutez un commentaire pour pouvoir demander des retouches.</p> : null}
+
+      <ConfirmDialog
+        open={confirmReject}
+        onOpenChange={setConfirmReject}
+        title="Refuser ce résultat ?"
+        description={
+          <>
+            La tâche retournera dans « À faire » et le travail de l'IA ne sera pas intégré. Les livrables restent consultables dans le panneau.
+            {trimmed ? <span className="mt-2 block text-[12.5px] italic text-ink-3">Votre commentaire sera joint au refus.</span> : null}
+          </>
+        }
+        confirmLabel="Refuser"
+        loading={pending === "reject"}
+        onConfirm={reject}
+      />
     </section>
   );
 }

@@ -23,6 +23,21 @@ const TONE_TEXT: Record<ReturnType<typeof statusTone>, string> = {
 
 const MAX_LABELS = 3;
 
+/** Unités abrégées pour tenir sur une ligne : « il y a 4 h », « il y a 23 min ». */
+const COMPACT_UNITS: [RegExp, string][] = [
+  [/\bsecondes?\b/, "s"],
+  [/\bminutes?\b/, "min"],
+  [/\bheures?\b/, "h"],
+  [/\bjours?\b/, "j"],
+  [/\bsemaines?\b/, "sem."],
+];
+
+function compactAgo(iso: string): string {
+  let s = timeAgo(iso);
+  for (const [re, abbr] of COMPACT_UNITS) s = s.replace(re, abbr);
+  return s;
+}
+
 export interface TaskCardProps extends Omit<React.HTMLAttributes<HTMLElement>, "onClick"> {
   task: Task;
   /** Ouvre le panneau de détail (par défaut : `selectTask`). */
@@ -226,12 +241,11 @@ export function TaskCard({ task, onOpen, dimmed, overlay, ghost, className, onKe
       ) : null}
 
       {/* Pied */}
-      <div className="flex items-center gap-2">
-        <DueChip dueDate={task.dueDate} done={done} />
-        <CostChip usd={task.costUsd} />
-        <span className="flex-1" />
-        <time className="font-mono text-[11px] text-ink-4" dateTime={task.updatedAt} title={shortDateTime(task.updatedAt)}>
-          {timeAgo(task.updatedAt)}
+      <div className="flex min-w-0 items-center gap-2">
+        <DueChip dueDate={task.dueDate} done={done} className="shrink-0 whitespace-nowrap" />
+        <CostChip usd={task.costUsd} className="shrink-0 whitespace-nowrap" />
+        <time className="ml-auto min-w-0 truncate font-mono text-[11px] text-ink-4" dateTime={task.updatedAt} title={`Mis à jour ${shortDateTime(task.updatedAt)}`}>
+          {compactAgo(task.updatedAt)}
         </time>
       </div>
 
