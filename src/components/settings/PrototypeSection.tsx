@@ -61,7 +61,7 @@ export function PrototypeSection({ index }: { index: number }) {
       await resetAll();
       toast("Tout a été effacé", { description: "Le prototype repart de zéro." });
       setConfirm(null);
-      router.replace("/welcome");
+      router.replace("/onboarding");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Effacement impossible.");
     } finally {

@@ -1,21 +1,32 @@
 import { cn } from "@/lib/client/utils";
 
-/** Marque Atelier : un carré d'établi cousu d'une diagonale. */
-export function BrandMark({ className, size = 26 }: { className?: string; size?: number }) {
+/** Marque BuildOS : le monogramme « B/ » en carré d'encre. */
+export function BrandMark({ className, size = 30, inverted }: { className?: string; size?: number; inverted?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={cn("shrink-0", className)} aria-hidden>
-      <rect x="2.5" y="2.5" width="27" height="27" rx="7" className="fill-ink" />
-      <path d="M8 24 24 8" stroke="var(--paper)" strokeWidth="2.4" strokeLinecap="round" strokeDasharray="3.2 3.2" />
-      <circle cx="22.5" cy="22.5" r="3.2" className="fill-accent" />
+      <rect width="32" height="32" rx="5" className={inverted ? "fill-paper" : "fill-ink"} />
+      <text
+        x="6.2"
+        y="23.2"
+        className={inverted ? "fill-ink" : "fill-paper"}
+        style={{ font: "900 17px var(--font-display)", letterSpacing: "-0.04em" }}
+      >
+        B/
+      </text>
     </svg>
   );
 }
 
-export function Wordmark({ className, compact }: { className?: string; compact?: boolean }) {
+export function Wordmark({ className, compact, tagline = true, inverted }: { className?: string; compact?: boolean; tagline?: boolean; inverted?: boolean }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <BrandMark />
-      {!compact ? <span className="font-display text-[19px] font-bold tracking-[-0.03em] text-ink">Atelier</span> : null}
+      <BrandMark inverted={inverted} />
+      {!compact ? (
+        <span className="flex flex-col leading-none">
+          <span className={cn("font-display text-[19px] font-extrabold tracking-[-0.04em]", inverted ? "text-paper" : "text-ink")}>BuildOS</span>
+          {tagline ? <span className={cn("mt-[3px] text-[10.5px] font-medium", inverted ? "text-paper/60" : "text-ink-3")}>De l&apos;idée au réel.</span> : null}
+        </span>
+      ) : null}
     </span>
   );
 }

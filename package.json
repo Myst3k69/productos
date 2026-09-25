@@ -1,8 +1,8 @@
 {
-  "name": "atelier",
+  "name": "buildos",
   "version": "0.1.0",
   "private": true,
-  "description": "Atelier — le tableau de bord où l'IA fabrique vos tâches et vous validez.",
+  "description": "BuildOS — le système d'exploitation des entrepreneurs, de l'idée à la production.",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",

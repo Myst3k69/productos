@@ -1,49 +1,56 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Permanent_Marker, Schibsted_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
+const schibsted = Schibsted_Grotesk({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-schibsted",
   display: "swap",
-  axes: ["opsz", "wdth"],
+  weight: ["500", "600", "700", "800", "900"],
 });
 
-const instrument = Instrument_Sans({
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  variable: "--font-geist",
   display: "swap",
-  axes: ["wdth"],
 });
 
-const jetbrains = JetBrains_Mono({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains",
+  variable: "--font-geist-mono",
   display: "swap",
+});
+
+const marker = Permanent_Marker({
+  subsets: ["latin"],
+  variable: "--font-marker",
+  display: "swap",
+  weight: "400",
 });
 
 export const metadata: Metadata = {
-  title: { default: "Atelier", template: "%s · Atelier" },
-  description: "Vous décrivez. L'IA fabrique. Vous validez. Le tableau de bord des fondateurs qui livrent.",
-  applicationName: "Atelier",
+  title: { default: "BuildOS — De l'idée à la production", template: "%s · BuildOS" },
+  description:
+    "Le système d'exploitation des entrepreneurs pour créer et faire évoluer des applications avec l'IA. Vous décrivez, l'IA structure, on construit ensemble.",
+  applicationName: "BuildOS",
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f0e6" },
-    { media: "(prefers-color-scheme: dark)", color: "#15130f" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f4f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d0d0e" },
   ],
   width: "device-width",
   initialScale: 1,
 };
 
 /* Applique le thème avant le premier rendu pour éviter le flash. */
-const themeScript = `(function(){try{var t=localStorage.getItem('atelier.theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+const themeScript = `(function(){try{var t=localStorage.getItem('atelier.theme');var d=t==='dark';if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+    <html lang="fr" className={`${schibsted.variable} ${geist.variable} ${geistMono.variable} ${marker.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

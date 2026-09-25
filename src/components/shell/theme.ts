@@ -18,8 +18,8 @@ function readStored(): Theme {
 }
 
 function resolve(theme: Theme): "light" | "dark" {
-  if (theme !== "system") return theme;
-  return typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  // BuildOS est pensé clair d'abord : le sombre est un choix explicite.
+  return theme === "dark" ? "dark" : "light";
 }
 
 function applyTheme(theme: Theme) {

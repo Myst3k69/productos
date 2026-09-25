@@ -1,5 +1,5 @@
-import { Welcome } from "@/components/onboarding/Welcome";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <Welcome />;
+  redirect("/onboarding");
 }

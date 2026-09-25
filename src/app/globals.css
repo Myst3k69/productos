@@ -3,81 +3,90 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ───────────────────────────── Tokens ─────────────────────────────
-   Atelier — papier chaud, encre, une seule couleur d'action (terracotta),
-   une couleur pour l'IA (vert profond). Le sombre garde la même chaleur.  */
+   BuildOS — « De l'idée au réel ». Papier blanc cassé, encre noire, une couleur
+   d'action (orange), un surligneur (lime) pour les annotations manuscrites,
+   un bleu électrique pour ce que fait l'IA.  */
 :root {
-  --paper: #f4f0e6;
-  --paper-2: #ebe6d9;
-  --paper-3: #e2dccc;
-  --card: #fffcf5;
-  --card-2: #faf6ec;
-  --ink: #1b1813;
-  --ink-2: #514b40;
-  --ink-3: #8c8577;
-  --ink-4: #b9b2a3;
-  --line: rgba(27, 24, 19, 0.09);
-  --line-2: rgba(27, 24, 19, 0.18);
-  --line-3: rgba(27, 24, 19, 0.3);
-  --accent: #e4572e;
-  --accent-ink: #b8401c;
-  --accent-soft: #fbe2d6;
-  --accent-glow: rgba(228, 87, 46, 0.22);
-  --ai: #1c6b60;
-  --ai-ink: #145247;
-  --ai-soft: #d5ebe4;
-  --ai-glow: rgba(28, 107, 96, 0.22);
-  --ok: #2f7d4f;
-  --ok-soft: #d8eddd;
-  --warn: #a86f00;
-  --warn-soft: #f7e9c2;
-  --danger: #b8321f;
-  --danger-soft: #f6d9d3;
-  --violet: #5b4b9a;
-  --violet-soft: #e5e0f5;
-  --shadow-card: 0 1px 0 rgba(27, 24, 19, 0.04), 0 1px 2px rgba(27, 24, 19, 0.06);
-  --shadow-lift: 0 14px 34px -14px rgba(27, 24, 19, 0.28), 0 2px 6px rgba(27, 24, 19, 0.08);
-  --shadow-pop: 0 24px 60px -20px rgba(27, 24, 19, 0.35), 0 4px 12px rgba(27, 24, 19, 0.08);
-  --shadow-drawer: -28px 0 70px -30px rgba(27, 24, 19, 0.35);
-  --grain-opacity: 0.55;
-  --selection: rgba(228, 87, 46, 0.22);
+  --paper: #f5f4f0;
+  --paper-2: #eeece6;
+  --paper-3: #e5e2da;
+  --card: #ffffff;
+  --card-2: #faf9f6;
+  --ink: #0b0b0c;
+  --ink-2: #44423d;
+  --ink-3: #85827a;
+  --ink-4: #b8b5ac;
+  --line: rgba(11, 11, 12, 0.08);
+  --line-2: rgba(11, 11, 12, 0.14);
+  --line-3: rgba(11, 11, 12, 0.26);
+  --accent: #ff5a1f;
+  --accent-ink: #d9430c;
+  --accent-soft: #ffe7dc;
+  --accent-glow: rgba(255, 90, 31, 0.25);
+  --ai: #3355ff;
+  --ai-ink: #1f3de0;
+  --ai-soft: #e3e8ff;
+  --ai-glow: rgba(51, 85, 255, 0.22);
+  --lime: #d4ff3a;
+  --lime-ink: #1d2400;
+  --lime-soft: #f1ffc4;
+  --ok: #16a34a;
+  --ok-soft: #dcf5e3;
+  --warn: #b45309;
+  --warn-soft: #fdefd2;
+  --danger: #dc2626;
+  --danger-soft: #fde0de;
+  --violet: #7c3aed;
+  --violet-soft: #ede4ff;
+  --shadow-card: 0 1px 0 rgba(11, 11, 12, 0.03), 0 1px 2px rgba(11, 11, 12, 0.05);
+  --shadow-lift: 0 18px 40px -18px rgba(11, 11, 12, 0.28), 0 2px 6px rgba(11, 11, 12, 0.06);
+  --shadow-pop: 0 28px 64px -22px rgba(11, 11, 12, 0.35), 0 4px 12px rgba(11, 11, 12, 0.07);
+  --shadow-drawer: -28px 0 70px -30px rgba(11, 11, 12, 0.3);
+  --shadow-brutal: 4px 4px 0 0 #0b0b0c;
+  --grain-opacity: 0.22;
+  --selection: rgba(212, 255, 58, 0.7);
   color-scheme: light;
 }
 
 .dark {
-  --paper: #15130f;
-  --paper-2: #1c1a15;
-  --paper-3: #24211a;
-  --card: #211f19;
-  --card-2: #27241d;
-  --ink: #f1ece1;
-  --ink-2: #c8c1b1;
-  --ink-3: #8d8677;
-  --ink-4: #5f594d;
-  --line: rgba(241, 236, 225, 0.09);
-  --line-2: rgba(241, 236, 225, 0.17);
-  --line-3: rgba(241, 236, 225, 0.28);
-  --accent: #f26b42;
-  --accent-ink: #ff8f6a;
-  --accent-soft: rgba(242, 107, 66, 0.16);
-  --accent-glow: rgba(242, 107, 66, 0.3);
-  --ai: #45b39c;
-  --ai-ink: #7fd3c0;
-  --ai-soft: rgba(69, 179, 156, 0.16);
-  --ai-glow: rgba(69, 179, 156, 0.3);
-  --ok: #4fbf7d;
-  --ok-soft: rgba(79, 191, 125, 0.16);
-  --warn: #e0b040;
-  --warn-soft: rgba(224, 176, 64, 0.16);
-  --danger: #e0604c;
-  --danger-soft: rgba(224, 96, 76, 0.16);
-  --violet: #a597e6;
-  --violet-soft: rgba(165, 151, 230, 0.16);
-  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-lift: 0 14px 34px -14px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3);
-  --shadow-pop: 0 24px 60px -20px rgba(0, 0, 0, 0.7), 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-drawer: -28px 0 70px -30px rgba(0, 0, 0, 0.7);
-  --grain-opacity: 0.35;
-  --selection: rgba(242, 107, 66, 0.3);
+  --paper: #0d0d0e;
+  --paper-2: #141415;
+  --paper-3: #1c1c1e;
+  --card: #18181a;
+  --card-2: #1e1e21;
+  --ink: #f5f4f0;
+  --ink-2: #c9c7c0;
+  --ink-3: #8b8982;
+  --ink-4: #56554f;
+  --line: rgba(245, 244, 240, 0.08);
+  --line-2: rgba(245, 244, 240, 0.15);
+  --line-3: rgba(245, 244, 240, 0.27);
+  --accent: #ff6a33;
+  --accent-ink: #ff8c5f;
+  --accent-soft: rgba(255, 106, 51, 0.16);
+  --accent-glow: rgba(255, 106, 51, 0.32);
+  --ai: #6b86ff;
+  --ai-ink: #9aadff;
+  --ai-soft: rgba(107, 134, 255, 0.16);
+  --ai-glow: rgba(107, 134, 255, 0.3);
+  --lime: #d4ff3a;
+  --lime-ink: #1d2400;
+  --lime-soft: rgba(212, 255, 58, 0.14);
+  --ok: #34d399;
+  --ok-soft: rgba(52, 211, 153, 0.15);
+  --warn: #f5b041;
+  --warn-soft: rgba(245, 176, 65, 0.15);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.15);
+  --violet: #a78bfa;
+  --violet-soft: rgba(167, 139, 250, 0.16);
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lift: 0 18px 40px -18px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 28px 64px -22px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-drawer: -28px 0 70px -30px rgba(0, 0, 0, 0.8);
+  --shadow-brutal: 4px 4px 0 0 #f5f4f0;
+  --grain-opacity: 0.18;
+  --selection: rgba(212, 255, 58, 0.45);
   color-scheme: dark;
 }
 
@@ -108,15 +117,20 @@
   --color-danger-soft: var(--danger-soft);
   --color-violet: var(--violet);
   --color-violet-soft: var(--violet-soft);
+  --color-lime: var(--lime);
+  --color-lime-ink: var(--lime-ink);
+  --color-lime-soft: var(--lime-soft);
 
-  --font-display: var(--font-bricolage), "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-instrument), "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--font-schibsted), "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geist), "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-hand: var(--font-marker), "Permanent Marker", "Comic Sans MS", cursive;
 
   --shadow-card: var(--shadow-card);
   --shadow-lift: var(--shadow-lift);
   --shadow-pop: var(--shadow-pop);
   --shadow-drawer: var(--shadow-drawer);
+  --shadow-brutal: var(--shadow-brutal);
 
   --radius-xs: 4px;
   --radius-sm: 6px;
@@ -144,7 +158,6 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-feature-settings: "ss01", "cv11";
-  overflow: hidden;
 }
 
 ::selection {
@@ -177,7 +190,7 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.015em;
+  letter-spacing: -0.025em;
   font-feature-settings: "ss01";
 }
 
@@ -461,4 +474,105 @@ h3,
 .prose-atelier input[type="checkbox"] {
   margin-right: 0.4em;
   accent-color: var(--accent);
+}
+
+/* ───────────────────────────── BuildOS : signatures visuelles ───────────────────────────── */
+
+/* Annotation manuscrite (feutre) */
+.font-hand {
+  font-family: var(--font-hand);
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+/* Post-it surligneur lime, légèrement de travers */
+@utility sticky-lime {
+  background: var(--lime);
+  color: var(--lime-ink);
+  font-family: var(--font-hand);
+  box-shadow: 0 10px 24px -12px rgba(11, 11, 12, 0.45);
+}
+
+/* Soulignement feutre orange sous un mot (à poser sur un <span>) */
+@utility marker-underline {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'><path d='M3 14 C 60 4, 140 4, 297 10' stroke='%23ff5a1f' stroke-width='7' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.32em;
+  padding-bottom: 0.08em;
+}
+
+/* Surlignage lime derrière un mot */
+@utility marker-highlight {
+  background: linear-gradient(transparent 55%, var(--lime) 55%, var(--lime) 92%, transparent 92%);
+  padding: 0 0.08em;
+}
+
+/* Trame de points (demi-teinte) pour les visuels N&B */
+@utility halftone {
+  background-image: radial-gradient(circle at center, currentColor 1px, transparent 1.6px);
+  background-size: 7px 7px;
+}
+
+/* Carte « brutaliste » : bordure encre + ombre décalée */
+@utility brutal {
+  border: 1.5px solid var(--ink);
+  box-shadow: var(--shadow-brutal);
+}
+
+/* Pastille de section numérotée (01, 02…) */
+@utility section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-6px) rotate(var(--r, 0deg));
+  }
+}
+.animate-float {
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+@keyframes type-caret {
+  50% {
+    opacity: 0;
+  }
+}
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: currentColor;
+  animation: type-caret 1s steps(1) infinite;
 }

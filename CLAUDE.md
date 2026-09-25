@@ -1,6 +1,6 @@
-# Atelier — guide du projet
+# BuildOS — guide du projet
 
-Atelier est un tableau de tâches où un fondateur écrit une spécification et où **l'IA prend la main immédiatement** : cadrage, plan, fabrication, contrôle, puis **validation humaine (HITL)** et intégration (dépôt git ou dossier de livrables). Public : participants de startupweek.tech (bootcamp MVP de 7 jours). Interface **en français**.
+**BuildOS** (anciennement « Atelier ») — « De l'idée à la production » — est le système d'exploitation des entrepreneurs pour créer et faire évoluer des applications avec l'IA. Il intègre la brique communautaire **Build Club** (buildclub.tech : ateliers, labs, experts, communauté) et le format intensif **StartupWeek** (7 jours pour lancer un MVP). Cœur du produit : un tableau de tâches où un fondateur écrit une spécification et où **l'IA prend la main immédiatement** : cadrage, plan, fabrication, contrôle, puis **validation humaine (HITL)** et intégration (dépôt git ou dossier de livrables). Public : participants de startupweek.tech (bootcamp MVP de 7 jours). Interface **en français**.
 
 Le dépôt contient deux couches :
 
@@ -27,7 +27,8 @@ src/components/shell/    AppShell, Sidebar, TopBar, Brand, theme, shortcuts
 src/components/views/    board/ flow/ list/ week/ dashboard/   (une vue = un dossier)
 src/components/task/     TaskDrawer (panneau de détail)
 src/components/composer/ NewTaskDialog ; src/components/palette/ CommandPalette
-src/components/project/  ProjectDialog ; src/components/settings/ SettingsView ; src/components/onboarding/ Welcome
+src/components/project/  ProjectDialog ; src/components/settings/ SettingsView ; src/components/onboarding/ Onboarding
+src/lib/buildos/         socle BuildOS (voir plus bas)
 ```
 
 ### Pipeline (source de vérité : `src/lib/domain/stages.ts`)
@@ -52,19 +53,46 @@ Les événements (`TaskEvent.kind`) : `stage`, `status`, `log`, `text` (l'IA par
 
 Artefacts (`Artifact.kind`) : `diff` (contenu = diff unifié git), `file` (`title` = chemin relatif, `mime`, `content` texte), `commit`, `pr` (`url`), `folder` (`url`), `link`.
 
-## Design system — « l'atelier éditorial »
+## Design system — BuildOS « build club éditorial »
 
-Papier chaud + encre, **une seule couleur d'action** (terracotta `accent`) réservée aux actions humaines et aux tâches qui attendent le fondateur, **une couleur pour l'IA** (vert profond `ai`) pour tout ce que l'IA fait. Tout le reste est neutre. Sombre et clair, même chaleur.
+Référence visuelle : maquette fournie par le fondateur (landing BuildOS). Blanc cassé + encre noire, typographie **très grasse et serrée**, une couleur d'action **orange**, un **surligneur lime** pour les annotations manuscrites façon post-it, un **bleu électrique** pour tout ce que fait l'IA. Visuels noir & blanc (trame demi-teinte), flèches et notes au feutre, pastilles de section numérotées orange (« 01 », « 02 »…). Clair par défaut ; le sombre est un choix explicite.
 
-- Couleurs : uniquement via les tokens Tailwind `bg-paper`, `bg-paper-2`, `bg-paper-3`, `bg-card`, `bg-card-2`, `text-ink`, `text-ink-2`, `text-ink-3`, `text-ink-4`, `border-line`, `border-line-2`, `border-line-3`, `accent` / `accent-ink` / `accent-soft`, `ai` / `ai-ink` / `ai-soft`, `ok` / `ok-soft`, `warn` / `warn-soft`, `danger` / `danger-soft`, `violet` / `violet-soft`. **Jamais** de couleur Tailwind brute (`bg-gray-100`, `text-blue-500`…), jamais de dégradé violet.
-- Typographie : `font-display` (Bricolage Grotesque) pour titres, en-têtes de colonnes, chiffres clés ; `font-sans` (Instrument Sans) pour le texte ; `font-mono` (JetBrains Mono) pour identifiants, commandes, journaux d'outils, coûts, durées, compteurs (`num`). Tailles : 11–13 px pour le dense, 14 px texte, 20 px titres de vue.
-- Rayons : `rounded-md` (10 px) cartes et boutons, `rounded-lg`/`rounded-xl` panneaux, `rounded-full` pastilles. Ombres : `shadow-card`, `shadow-lift` (survol), `shadow-pop` (menus), `shadow-drawer`.
-- Motion : entrées en cascade `className="reveal" style={{ "--i": index }}`, `reveal-fast`, indicateur IA `ai-stitch` (couture qui avance), `animate-blink`, `animate-breathe`, `pulse-ring` (attention HITL). `motion/react` pour les layout animations (cartes qui changent de colonne). Une seule animation soignée vaut mieux que dix micro-interactions. Respecter `prefers-reduced-motion` (déjà géré globalement).
-- Sémantique visuelle : l'IA travaille → `ai` + `WorkingDots`/`ai-stitch` ; attend le fondateur → `accent` (`pulse-ring` sur la carte) ; échec → `danger` ; terminé → `ok`. Les colonnes/étapes IA sont teintées `ai` très légèrement, la colonne « À valider » `accent`.
-- Copie UI : français, tutoiement exclu, vouvoiement, phrases courtes, verbes d'action (« Valider », « Demander des retouches », « Confier à l'IA »). Pas de jargon technique dans les libellés destinés aux fondateurs (le mode « Activité » peut montrer les outils bruts).
-- Densité : produit de travail, pas landing page. Marges 12–20 px, cartes compactes, texte tronqué avec `truncate` + `title=`.
-- Accessibilité : boutons avec `aria-label` quand icône seule, focus visible (déjà global), rôles ARIA sur listes/onglets, cibles ≥ 28 px, contrastes via tokens.
-- Composants : réutiliser `src/components/ui/*` et `src/components/shared/task-bits.tsx` avant d'écrire du nouveau. Les nouveaux composants partagés par plusieurs vues vont dans `src/components/shared/`.
+- Couleurs : uniquement via les tokens Tailwind `bg-paper`, `bg-paper-2`, `bg-paper-3`, `bg-card`, `bg-card-2`, `text-ink`, `text-ink-2`, `text-ink-3`, `text-ink-4`, `border-line`, `border-line-2`, `border-line-3`, `accent` / `accent-ink` / `accent-soft` (orange), `ai` / `ai-ink` / `ai-soft` (bleu IA), `lime` / `lime-ink` / `lime-soft` (surligneur), `ok`, `warn`, `danger`, `violet` (+ `-soft`). Blanc autorisé en texte sur fond ink/accent (`text-white`, `text-paper`). **Jamais** de couleur Tailwind brute, jamais de dégradé violet.
+- Typographie : `font-display` (Schibsted Grotesk, 800–900, `tracking-[-0.04em]` sur les grands titres, `leading-[0.95]`) pour titres et chiffres clés ; `font-sans` (Geist) pour le texte ; `font-mono` (Geist Mono) pour identifiants, métriques, étiquettes de section en capitales (`text-[11px] uppercase tracking-[0.14em]`) ; `font-hand` (Permanent Marker) **uniquement** pour les annotations manuscrites (post-its lime, notes fléchées), toujours courtes, en capitales, légèrement pivotées.
+- Signatures (utilitaires de `globals.css`) : `sticky-lime` (post-it), `marker-underline` (soulignement feutre orange), `marker-highlight` (surlignage lime), `halftone` (trame de points, couleur = `currentColor`), `brutal` (bordure encre + ombre décalée), `section-badge` (pastille orange « 01 »), `animate-marquee`, `animate-float`, `caret`, plus `reveal` / `reveal-fast` (cascade via `style={{"--i": n}}`), `ai-stitch`, `pulse-ring`, `animate-blink`, `animate-breathe`.
+- Boutons : `variant="ink"` (noir) = CTA principal (« Démarrer un projet »), `primary` (orange) = action forte / humaine (Valider), `lime` = action ludique, `secondary` = contour, `ai` = lancer l'IA. `Chip tone="lime"` disponible.
+- Rayons : `rounded-md` (10 px) cartes/boutons, `rounded-xl`/`rounded-2xl` panneaux, `rounded-full` pastilles et toggles. Cartes blanches (`bg-card`) bordées `border-line` sur fond `bg-paper`.
+- Sémantique : l'IA travaille → `ai` (bleu) + `WorkingDots`/`ai-stitch` ; attend le fondateur → `accent` (orange, `pulse-ring`) ; échec → `danger` ; terminé / disponible → `ok` (vert, comme les toggles « Disponible » de la maquette).
+- Copie UI : français, vouvoiement, phrases courtes, verbes d'action. Ton Build Club : concret, énergique, un peu joueur (« Moins de friction, plus de création »).
+- Motion : sobre ; une entrée en cascade soignée par écran, micro-interactions au survol. `prefers-reduced-motion` géré globalement.
+- Accessibilité : `aria-label` sur icônes seules, focus visible, contrastes via tokens, cibles ≥ 28 px.
+- Composants : réutiliser `src/components/ui/*`, `src/components/shared/*` et `src/components/shell/Brand.tsx` (`BrandMark`, `Wordmark` — monogramme « B/ »).
+
+## Carte du produit BuildOS (routes)
+
+| Route | Écran | Dossier |
+|---|---|---|
+| `/` | Landing marketing (publique, sans store) | `src/components/marketing/` |
+| `/onboarding` | Onboarding immersif (plein cadre, crée le projet) | `src/components/onboarding/` |
+| `/home` | Vue d'ensemble du fondateur | `src/components/home/` |
+| `/board` `/flow` `/list` `/week` | Vues du projet (kanban…) | `src/components/views/` |
+| `/deliverables` | Fondations générées (PRD, wireframes, modèle de données…) | `src/components/deliverables/` |
+| `/agents` | Mes agents de code (Codex, Claude Code, Cursor, Copilot…) + routage | `src/components/agents/` |
+| `/releases` | Mise en production : Dev → Revue humaine → Préprod → Production | `src/components/releases/` |
+| `/dashboard` | Analytics du pipeline | `src/components/views/dashboard/` |
+| `/audits` | Audits & santé de l'application | `src/components/audits/` |
+| `/club` | Build Club : ateliers, labs, experts, communauté, StartupWeek | `src/components/club/` |
+| `/settings` | Réglages | `src/components/settings/` |
+
+Routes de l'app dans `src/app/(app)/` (coquille `AppShell` ; `/onboarding` rendu sans barre latérale). Landing dans `src/app/(marketing)/`.
+
+### Socle BuildOS (`src/lib/buildos/`)
+
+- `types.ts` : `CodingAgent`, `RoutingRule`, `Deliverable` (+ `DeliverableKind`), `Release` (+ `EnvId`), `HealthMetric`, `AuditReport`, `ProductMetric`, `ClubEvent`, `ClubLab`, `Expert`, `ClubPost`, `FounderProfile`, `JourneyStep`, `ProjectBrief`.
+- `fixtures.ts` : agents par défaut, règles de routage, données Build Club, `releasesFor()`, `healthFor()`, `productMetricsFor()`, `auditsFor()`, `defaultJourney()` (parcours 7 jours façon StartupWeek).
+- `generate.ts` : `DELIVERABLE_META`, `DELIVERABLE_KINDS`, `APP_TYPE_META`, `guessAppType()`, `suggestFeatures()`, `generateDeliverable()`, `generateFoundations()`, `initialTasksFromBrief()`, `routeAgent(task, agents, rules, strategy)`.
+- `store.ts` : `useBuildOS` (zustand persisté `buildos.v1`) — `profile`, `agents`, `routing`, `strategy`, `briefs`, `deliverables[projectId]`, `releases[projectId]`, `audits[projectId]`, `journeys[projectId]`, `events`, `labs`, `posts`, `experts`, `assistantOpen` ; actions `setProfile`, `completeOnboarding`, `ensureProject(project)` (**à appeler** avant de lire les données d'un projet), `setBrief`, `toggleAgent`, `connectAgent`, `setStrategy`, `setRouting`, `generateFoundations(project, {stagger})`, `regenerateDeliverable`, `validateDeliverable`, `updateDeliverableContent`, `approveRelease`, `promoteRelease`, `rollbackRelease`, `markFindingConverted`, `runAudit`, `toggleJourneyStep`, `registerEvent`, `joinLab`, `likePost`, `addPost`, `joinClub`, `setAssistantOpen`, `resetBuildOS`.
+- Tâches, projets et pipeline IA restent dans `@/lib/client/store` (`useStore`). Créer une tâche depuis une nouvelle brique : `useStore.getState().createTask({...})`.
 
 ## Conventions de code
 

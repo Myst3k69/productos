@@ -284,7 +284,7 @@ function ComposerContent({ dirtyRef, onCancel }: { dirtyRef: React.RefObject<() 
             </div>
             {typeRowOpen ? (
               <div className="mt-2 flex flex-wrap gap-1.5 reveal-fast" role="group" aria-label="Type de tâche">
-                <FilterChip active={typeOverride === null} onClick={() => setTypeOverride(null)} title="Laisser Atelier détecter le type d'après le titre et la spec">
+                <FilterChip active={typeOverride === null} onClick={() => setTypeOverride(null)} title="Laisser BuildOS détecter le type d'après le titre et la spec">
                   <Sparkles className="h-3.5 w-3.5" />
                   Automatique
                 </FilterChip>

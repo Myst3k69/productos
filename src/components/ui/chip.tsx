@@ -15,6 +15,7 @@ export const chipVariants = cva("inline-flex items-center gap-1 whitespace-nowra
       warn: "border-transparent bg-warn-soft text-warn",
       danger: "border-transparent bg-danger-soft text-danger",
       violet: "border-transparent bg-violet-soft text-violet",
+      lime: "border-transparent bg-lime text-lime-ink",
       outline: "border-line-2 bg-transparent text-ink-3",
     },
     size: {

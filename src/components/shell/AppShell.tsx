@@ -20,7 +20,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const hasProjects = useStore((s) => s.projects.length > 0);
   const pathname = usePathname();
   const router = useRouter();
-  const isWelcome = pathname.startsWith("/welcome");
+  /** Écrans plein cadre (sans barre latérale) : onboarding. */
+  const isBare = pathname.startsWith("/onboarding") || pathname.startsWith("/welcome");
 
   useEffect(() => {
     void init();
@@ -28,15 +29,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!ready) return;
-    if (!hasProjects && !isWelcome) router.replace("/welcome");
-    if (hasProjects && isWelcome) router.replace("/board");
-  }, [ready, hasProjects, isWelcome, router]);
+    if (!hasProjects && !isBare) router.replace("/onboarding");
+  }, [ready, hasProjects, isBare, router]);
 
   useGlobalShortcuts();
 
   if (!ready) return <Splash />;
   if (error) return <Splash error={error} />;
-  if (isWelcome || !hasProjects) return <TooltipProvider>{children}</TooltipProvider>;
+  if (isBare || !hasProjects) return <TooltipProvider>{children}</TooltipProvider>;
 
   return (
     <TooltipProvider>
@@ -62,11 +62,11 @@ function Splash({ error }: { error?: string }) {
         <BrandMark size={40} className={error ? "" : "animate-breathe"} />
         {error ? (
           <div className="max-w-sm text-center">
-            <p className="font-display text-[15px] font-semibold">Impossible de démarrer Atelier</p>
+            <p className="font-display text-[15px] font-semibold">Impossible de démarrer BuildOS</p>
             <p className="mt-1 text-[13px] text-ink-3">{error}</p>
           </div>
         ) : (
-          <p className="text-[13px] text-ink-3">Ouverture de l'atelier…</p>
+          <p className="text-[13px] text-ink-3">Ouverture de BuildOS…</p>
         )}
       </div>
     </div>

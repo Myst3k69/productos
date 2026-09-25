@@ -1,5 +1,5 @@
 /**
- * Pipeline d'une tâche Atelier — de la spécification à l'intégration.
+ * Pipeline d'une tâche BuildOS — de la spécification à l'intégration.
  *
  *  backlog ─▶ clarify ─▶ plan ─▶ build ─▶ verify ─▶ review ─▶ integrate ─▶ done
  *  (humain)   (IA)       (IA)    (IA)     (IA)      (HITL)    (IA)         (fin)
