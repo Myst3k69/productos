@@ -42,7 +42,7 @@ export function MarketingNav() {
     <header
       className={cn(
         "sticky top-0 z-50 transition-[background-color,border-color,box-shadow] duration-300",
-        scrolled || open ? "border-b border-line-2 bg-paper/85 backdrop-blur-md" : "border-b border-transparent bg-paper/0",
+        scrolled || open ? "border-b border-line-2 bg-paper/95 backdrop-blur-md" : "border-b border-transparent bg-paper/0",
       )}
     >
       <nav aria-label="Navigation principale" className="mx-auto flex h-[68px] max-w-[1320px] items-center gap-6 px-4 sm:px-6 lg:px-8">

@@ -1,10 +1,25 @@
-# Atelier
+# BuildOS
 
-**Vous décrivez. L'IA fabrique. Vous validez.**
+**De l'idée à la production.** Le système d'exploitation des entrepreneurs pour créer et faire évoluer des applications avec l'IA.
 
-Atelier est le tableau de bord des fondateurs qui livrent : vous ajoutez une tâche avec sa spécification, l'IA la prend en charge immédiatement (cadrage, plan, fabrication, contrôle), la dépose dans **À valider**, vous approuvez ou demandez des retouches, et le résultat est intégré — dans votre dépôt git si c'est du code, dans un dossier de livrables sinon.
+Vous décrivez ce que vous voulez. L'IA structure, pose les bonnes questions, génère les fondations (PRD, wireframes, modèle de données, architecture…), confie le code aux meilleurs agents (Claude Code, Codex, Cursor, Copilot…) et vous accompagne jusqu'à la production, avec une revue humaine à chaque étape clé et des audits réguliers.
 
-Conçu pour les participants de [startupweek.tech](https://startupweek.tech) : un outil simple et complet pour abattre en sept jours tout ce qu'un MVP exige, code ou non.
+BuildOS intègre le **Build Club** ([buildclub.tech](https://www.buildclub.tech) : ateliers, labs, experts, communauté) et le format intensif **StartupWeek** ([startupweek.tech](https://startupweek.tech) : 7 jours pour lancer un MVP).
+
+## Les écrans
+
+| Écran | Ce que l'entrepreneur y fait |
+|---|---|
+| **Landing** (`/`) | Découvre la promesse, essaie de décrire son idée, voit le produit en action, choisit un tarif |
+| **Onboarding** (`/onboarding`) | En 3 minutes : profil, idée, questions de l'IA, brief, fondations générées en direct, agents, Build Club |
+| **Vue d'ensemble** (`/home`) | Son cockpit : parcours de lancement en 7 jours, ce qui l'attend, ce que l'IA fait, santé de l'app |
+| **Tableau, Flux, Liste, Semaine** | Les tâches du projet, prises en charge par l'IA et validées par lui |
+| **Fondations** (`/deliverables`) | Relit, ajuste et valide les 10 livrables générés |
+| **Mes agents** (`/agents`) | Connecte ses agents de code et règle le routage intelligent |
+| **Mise en production** (`/releases`) | Dev → revue humaine → préprod → production, retour arrière possible |
+| **Analytics, Audits** | Pilote le rythme, la santé et transforme chaque recommandation en tâche |
+| **Build Club** (`/club`) | Ateliers, labs, experts à la demande, communauté, StartupWeek |
+| **Assistant IA** (touche « . ») | Décrit un besoin en langage naturel, l'IA pose ses questions et crée les tâches |
 
 ## Le pipeline
 
@@ -38,7 +53,7 @@ pnpm install
 pnpm dev
 ```
 
-Ouvrez http://localhost:3000. Au premier lancement, choisissez **Explorer avec la démo** : deux projets et une vingtaine de tâches à toutes les étapes, avec une IA simulée qui fait vivre le pipeline en temps réel (aucun appel réel, aucune donnée ne quitte votre navigateur).
+Ouvrez http://localhost:3000 pour la landing. « Voir la démo » ouvre l'application avec deux projets et une vingtaine de tâches à toutes les étapes, et une IA simulée qui fait vivre le pipeline en temps réel. « Démarrer un projet » lance l'onboarding. Aucun appel réel, aucune donnée ne quitte votre navigateur.
 
 ## Deux modes
 
@@ -74,4 +89,4 @@ src/lib/server/        back-office : base, exécuteur, moteur IA, intégrations 
 src/app/api/           routes du back-office
 ```
 
-Le guide de conception et de contribution est dans `CLAUDE.md`.
+Le guide de conception (identité BuildOS) et de contribution est dans `CLAUDE.md`.

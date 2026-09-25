@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
@@ -15,7 +17,10 @@ import { SidebarProfile } from "./SidebarProfile";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const collapsed = useStore((s) => s.sidebarCollapsed);
+  const storedCollapsed = useStore((s) => s.sidebarCollapsed);
+  const narrow = useNarrowScreen();
+  // Sous 1024 px, la barre latérale se replie d'office pour laisser la place au contenu.
+  const collapsed = storedCollapsed || narrow;
   const toggleSidebar = useStore((s) => s.toggleSidebar);
   const counters = useNavCounters();
 
@@ -95,4 +100,16 @@ export function Sidebar() {
       </div>
     </aside>
   );
+}
+
+function useNarrowScreen(): boolean {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const on = () => setNarrow(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return narrow;
 }

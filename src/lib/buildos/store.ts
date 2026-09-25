@@ -376,3 +376,10 @@ export const useBuildOS = create<BuildOSState>()(
 );
 
 export { DELIVERABLE_KINDS };
+
+/* Plusieurs onglets ouverts : chacun relit l'état quand un autre l'enregistre (sinon le dernier écrase tout). */
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === "buildos.v1") void useBuildOS.persist.rehydrate();
+  });
+}
