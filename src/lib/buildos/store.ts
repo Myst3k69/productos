@@ -68,6 +68,8 @@ interface BuildOSState {
   approveRelease(projectId: string, releaseId: string): void;
   promoteRelease(projectId: string, releaseId: string, to: EnvId): void;
   rollbackRelease(projectId: string, releaseId: string): void;
+  /** Prépare une release simulée : développement par l'agent, puis revue humaine. */
+  createRelease(projectId: string, input: { title: string; items: string[] }): Release;
 
   /* Audits */
   markFindingConverted(projectId: string, auditId: string, findingId: string): void;
@@ -105,6 +107,18 @@ const initial = () => ({
 });
 
 const ENV_ORDER: EnvId[] = ["dev", "review", "staging", "production"];
+
+/** Version suivante (mineure) : v0.4.0 → v0.5.0. */
+function nextVersion(versions: string[]): string {
+  let best: [number, number] = [0, 0];
+  for (const v of versions) {
+    const m = /^v?(\d+)\.(\d+)/.exec(v);
+    if (!m) continue;
+    const cur: [number, number] = [Number(m[1]), Number(m[2])];
+    if (cur[0] > best[0] || (cur[0] === best[0] && cur[1] > best[1])) best = cur;
+  }
+  return `v${best[0]}.${best[1] + 1}.0`;
+}
 
 export const useBuildOS = create<BuildOSState>()(
   persist(
@@ -250,6 +264,34 @@ export const useBuildOS = create<BuildOSState>()(
             }),
           },
         }));
+      },
+      createRelease(projectId, input) {
+        const list = get().releases[projectId] ?? [];
+        const release: Release = {
+          id: `${projectId}-rel-${Date.now().toString(36)}`,
+          projectId,
+          version: nextVersion(list.map((r) => r.version)),
+          title: input.title,
+          env: "dev",
+          status: "running",
+          createdAt: new Date().toISOString(),
+          items: input.items,
+          checks: [
+            { name: "Tests automatisés", status: "pending", detail: "En cours d'exécution" },
+            { name: "Revue de sécurité IA", status: "pending", detail: "Analyse en cours" },
+            { name: "Revue humaine", status: "pending", detail: "En attente de votre validation" },
+          ],
+        };
+        set((s) => ({ releases: { ...s.releases, [projectId]: [release, ...(s.releases[projectId] ?? [])] } }));
+        const patch = (fn: (r: Release) => Release) =>
+          set((s) => ({ releases: { ...s.releases, [projectId]: (s.releases[projectId] ?? []).map((r) => (r.id === release.id && r.env === "dev" ? fn(r) : r)) } }));
+        // Simulation : l'agent assemble la release, les contrôles passent, puis elle attend votre revue.
+        setTimeout(() => patch((r) => ({ ...r, checks: r.checks.map((c, i) => (i === 0 ? { ...c, status: "pass" as const, detail: `${36 + input.items.length * 14} passés` } : c)) })), 1600);
+        setTimeout(
+          () => patch((r) => ({ ...r, env: "review" as const, status: "waiting" as const, checks: r.checks.map((c, i) => (i === 1 ? { ...c, status: "pass" as const, detail: "0 faille critique" } : c)) })),
+          3400,
+        );
+        return release;
       },
 
       markFindingConverted(projectId, auditId, findingId) {

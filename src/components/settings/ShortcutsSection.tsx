@@ -14,7 +14,9 @@ export function ShortcutsSection({ index }: { index: number }) {
   const shortcuts: { keys: string[]; label: string; hint: string }[] = [
     { keys: ["N"], label: "Nouvelle tâche", hint: "Ouvre le composeur ; l'IA prend la main dès l'envoi." },
     { keys: [mod, "K"], label: "Palette de commandes", hint: "Rechercher une tâche, changer de vue, agir sans quitter le clavier." },
-    { keys: ["1", "5"], label: "Changer de vue", hint: "Tableau, Flux, Liste, Semaine, Bord — dans cet ordre." },
+    { keys: ["0", "5"], label: "Changer d'écran", hint: "Vue d'ensemble, Tableau, Flux, Liste, Semaine, Analytics — dans cet ordre." },
+    { keys: ["G", "…"], label: "Aller à", hint: "G puis A agents, F fondations, M mise en prod, U audits, C Build Club, S réglages." },
+    { keys: ["."], label: "Assistant IA", hint: "Ouvre ou ferme le panneau de l'assistant." },
     { keys: ["Échap"], label: "Fermer", hint: "Referme le panneau de détail ou la fenêtre ouverte." },
   ];
 

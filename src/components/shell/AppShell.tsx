@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useStore } from "@/lib/client/store";
+import { useBuildOS } from "@/lib/buildos/store";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
@@ -11,6 +12,7 @@ import { TaskDrawer } from "@/components/task/TaskDrawer";
 import { NewTaskDialog } from "@/components/composer/NewTaskDialog";
 import { CommandPalette } from "@/components/palette/CommandPalette";
 import { ProjectDialog } from "@/components/project/ProjectDialog";
+import { AssistantDock } from "@/components/assistant/AssistantDock";
 import { useGlobalShortcuts } from "./shortcuts";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -18,6 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const ready = useStore((s) => s.ready);
   const error = useStore((s) => s.error);
   const hasProjects = useStore((s) => s.projects.length > 0);
+  const projectId = useStore((s) => s.projectId);
   const pathname = usePathname();
   const router = useRouter();
   /** Écrans plein cadre (sans barre latérale) : onboarding. */
@@ -31,6 +34,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (!ready) return;
     if (!hasProjects && !isBare) router.replace("/onboarding");
   }, [ready, hasProjects, isBare, router]);
+
+  // Données BuildOS du projet courant (fondations, mises en prod, audits, parcours) : initialisées au besoin.
+  useEffect(() => {
+    if (!projectId) return;
+    const project = useStore.getState().projects.find((p) => p.id === projectId);
+    if (project) useBuildOS.getState().ensureProject(project);
+  }, [projectId, ready]);
 
   useGlobalShortcuts();
 
@@ -46,6 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <TopBar />
           <main className="relative min-h-0 flex-1 overflow-hidden">{children}</main>
         </div>
+        <AssistantDock />
       </div>
       <TaskDrawer />
       <NewTaskDialog />

@@ -292,6 +292,7 @@ h3,
     border: 1.5px solid var(--accent);
     opacity: 0;
     animation: ring 2.2s ease-out infinite;
+      pointer-events: none;
   }
 }
 

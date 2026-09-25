@@ -4,12 +4,13 @@ import * as React from "react";
 import { toast } from "sonner";
 import { AlertTriangle, Check, CircleHelp, Eye, RotateCcw } from "lucide-react";
 import type { Task } from "@/lib/domain/types";
-import { STATUS_META } from "@/lib/domain/types";
+import { STATUS_META, TASK_TYPE_META } from "@/lib/domain/types";
 import { STAGE_META } from "@/lib/domain/stages";
 import { useStore, type DrawerTab } from "@/lib/client/store";
 import { cn, shortDateTime, timeAgoCompact } from "@/lib/client/utils";
 import { Button } from "@/components/ui/button";
-import { ActivityLine, CostChip, DueChip, PriorityMark, ProgressRail, StatusIcon, TypeChip, statusTone } from "@/components/shared/task-bits";
+import { ActivityLine, CostChip, DueChip, PriorityMark, ProgressRail, StatusIcon, TypeIcon, statusTone } from "@/components/shared/task-bits";
+import { TaskAgentBadge } from "@/components/shared/AgentBadge";
 
 const TONE_TEXT: Record<ReturnType<typeof statusTone>, string> = {
   ai: "text-ai",
@@ -99,25 +100,32 @@ export function TaskCard({ task, onOpen, dimmed, overlay, ghost, className, onKe
         className,
       )}
     >
-      {/* Ligne 1 : type, priorité · itération, statut */}
-      <div className="flex items-center gap-1.5">
-        <TypeChip type={task.type} size="xs" />
-        <PriorityMark priority={task.priority} />
-        <span className="flex-1" />
-        {task.iteration > 0 ? (
-          <span className="num rounded-xs bg-paper-2 px-1 font-mono text-[10.5px] leading-4 text-ink-3" title={`Itération ${task.iteration}`}>
-            it. {task.iteration}
+      {/* Titre + statut */}
+      <div className="flex items-start gap-2">
+        <h3 className="line-clamp-2 min-w-0 flex-1 text-[13.5px] font-semibold leading-snug tracking-[-0.005em] text-ink" title={task.title}>
+          {task.title}
+        </h3>
+        <span className="mt-px inline-flex shrink-0 items-center gap-1.5">
+          {task.iteration > 0 ? (
+            <span className="num rounded-xs bg-paper-2 px-1 font-mono text-[10.5px] leading-4 text-ink-3" title={`Itération ${task.iteration}`}>
+              it. {task.iteration}
+            </span>
+          ) : null}
+          <span className={cn("inline-flex items-center", TONE_TEXT[statusTone(task.status)])} title={STATUS_META[task.status].label}>
+            <StatusIcon status={task.status} />
           </span>
-        ) : null}
-        <span className={cn("inline-flex items-center", TONE_TEXT[statusTone(task.status)])} title={STATUS_META[task.status].label}>
-          <StatusIcon status={task.status} />
         </span>
       </div>
 
-      {/* Titre */}
-      <h3 className="line-clamp-2 text-[13.5px] font-medium leading-snug text-ink" title={task.title}>
-        {task.title}
-      </h3>
+      {/* Sous-titre : type, priorité, échéance */}
+      <div className="-mt-1 flex min-w-0 items-center gap-2 text-[11.5px] text-ink-3">
+        <span className="inline-flex shrink-0 items-center gap-1">
+          <TypeIcon type={task.type} className="h-3 w-3" />
+          {TASK_TYPE_META[task.type].label}
+        </span>
+        <PriorityMark priority={task.priority} />
+        <DueChip dueDate={task.dueDate} done={done} className="ml-auto min-w-0 truncate whitespace-nowrap" />
+      </div>
 
       {/* Étiquettes */}
       {task.labels.length ? (
@@ -225,11 +233,12 @@ export function TaskCard({ task, onOpen, dimmed, overlay, ghost, className, onKe
         </Stop>
       ) : null}
 
-      {/* Pied */}
-      <div className="flex min-w-0 items-center gap-2">
-        <DueChip dueDate={task.dueDate} done={done} className="shrink-0 whitespace-nowrap" />
+      {/* Pied : agent, coût, fraîcheur */}
+      <div className="flex min-w-0 items-center gap-2 border-t border-line pt-2">
+        <TaskAgentBadge task={task} className="min-w-0" />
+        <span className="flex-1" />
         <CostChip usd={task.costUsd} className="shrink-0 whitespace-nowrap" />
-        <time className="ml-auto min-w-0 truncate font-mono text-[11px] text-ink-4" dateTime={task.updatedAt} title={`Mis à jour ${shortDateTime(task.updatedAt)}`}>
+        <time className="shrink-0 whitespace-nowrap font-mono text-[11px] text-ink-4" dateTime={task.updatedAt} title={`Mis à jour ${shortDateTime(task.updatedAt)}`}>
           {timeAgoCompact(task.updatedAt)}
         </time>
       </div>
