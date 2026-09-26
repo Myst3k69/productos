@@ -67,6 +67,8 @@ function initDraft(params: URLSearchParams, profile: FounderProfile | null, proj
     d = emptyDraft();
   }
 
+  // Nom saisi à l'inscription (compte) : inutile de le redemander.
+  if (!d.name && profile?.name) d = { ...d, name: profile.name };
   if (returning && profile) {
     d = { ...d, name: d.name || profile.name, role: profile.role, techLevel: profile.techLevel, stage: d.stage, hoursPerWeek: profile.hoursPerWeek };
     if (d.step === "welcome") d.step = "idea";

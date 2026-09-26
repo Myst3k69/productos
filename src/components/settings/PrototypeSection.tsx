@@ -18,6 +18,9 @@ export function PrototypeSection({ index }: { index: number }) {
   const mockSpeed = useStore((s) => s.settings.mockSpeed);
   const reloadDemo = useStore((s) => s.reloadDemo);
   const resetAll = useStore((s) => s.resetAll);
+  const seedDemo = useStore((s) => s.seedDemo);
+  /* Avec un compte, les projets vivent dans Supabase : on ajoute la démo, on n'efface jamais tout. */
+  const cloud = useStore((s) => s.mode === "supabase");
   const save = useSaveSettings();
   const router = useRouter();
 
@@ -55,6 +58,19 @@ export function PrototypeSection({ index }: { index: number }) {
     }
   };
 
+  const addDemo = async () => {
+    setBusy(true);
+    try {
+      await seedDemo();
+      toast.success("Projets de démonstration ajoutés", { description: "Nomad Desk et son voisin sont dans votre compte : explorez, puis supprimez-les quand vous voulez." });
+      router.push("/board");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Ajout impossible.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const reset = async () => {
     setBusy(true);
     try {
@@ -77,7 +93,11 @@ export function PrototypeSection({ index }: { index: number }) {
         <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-violet" aria-hidden />
         <div className="min-w-0">
           <p className="text-[13.5px] font-semibold text-violet">Données simulées</p>
-          <p className="mt-0.5 text-[13px] leading-relaxed text-ink-2 text-pretty">Ce prototype fait tourner une IA simulée pour valider l'usage. Aucun appel réel, aucun coût.</p>
+          <p className="mt-0.5 text-[13px] leading-relaxed text-ink-2 text-pretty">
+            {cloud
+              ? "Vos projets sont enregistrés sur votre compte ; l'IA reste simulée pour valider l'usage. Aucun appel réel, aucun coût réel."
+              : "Ce prototype fait tourner une IA simulée pour valider l'usage. Aucun appel réel, aucun coût."}
+          </p>
         </div>
       </div>
 
@@ -116,8 +136,18 @@ export function PrototypeSection({ index }: { index: number }) {
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
           <div className="min-w-0 flex-1">
             <p className="text-[13.5px] font-semibold text-ink">Jeu de données</p>
-            <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-3 text-pretty">Deux projets, une vingtaine de tâches à tous les stades. Tout est stocké dans ce navigateur.</p>
+            <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-3 text-pretty">
+              {cloud
+                ? "Deux projets d'exemple, une vingtaine de tâches à tous les stades, ajoutés à votre compte."
+                : "Deux projets, une vingtaine de tâches à tous les stades. Tout est stocké dans ce navigateur."}
+            </p>
           </div>
+          {cloud ? (
+            <Button variant="secondary" size="sm" loading={busy} onClick={() => void addDemo()} className="shrink-0">
+              <RefreshCw className="h-3.5 w-3.5" />
+              Ajouter les projets de démo
+            </Button>
+          ) : (
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <Button variant="secondary" size="sm" onClick={() => setConfirm("reload")}>
               <RefreshCw className="h-3.5 w-3.5" />
@@ -128,6 +158,7 @@ export function PrototypeSection({ index }: { index: number }) {
               Tout effacer
             </Button>
           </div>
+          )}
         </div>
       </SettingsCard>
 

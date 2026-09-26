@@ -19,6 +19,8 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@libsql/client": "^0.15.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -50,6 +52,11 @@
     "typescript": "^5.9.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@tailwindcss/oxide", "unrs-resolver", "sharp", "esbuild"]
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "unrs-resolver",
+      "sharp",
+      "esbuild"
+    ]
   }
 }

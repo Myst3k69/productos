@@ -13,6 +13,10 @@ import { NewTaskDialog } from "@/components/composer/NewTaskDialog";
 import { CommandPalette } from "@/components/palette/CommandPalette";
 import { ProjectDialog } from "@/components/project/ProjectDialog";
 import { AssistantDock } from "@/components/assistant/AssistantDock";
+import { DemoBanner } from "@/components/account/DemoBanner";
+import { InvitationsBanner } from "@/components/account/InvitationsBanner";
+import { Button } from "@/components/ui/button";
+import { isDemoBrowser, supabaseConfigured } from "@/lib/supabase/config";
 import { useGlobalShortcuts } from "./shortcuts";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -46,13 +50,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!ready) return <Splash />;
   if (error) return <Splash error={error} />;
-  if (isBare || !hasProjects) return <TooltipProvider>{children}</TooltipProvider>;
+  if (isBare || !hasProjects)
+    return (
+      <TooltipProvider>
+        {children}
+        <InvitationsBanner />
+      </TooltipProvider>
+    );
 
   return (
     <TooltipProvider>
       <div className="flex h-dvh w-full overflow-hidden">
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
+          <DemoBanner />
           <TopBar />
           <main className="relative min-h-0 flex-1 overflow-hidden">{children}</main>
         </div>
@@ -62,6 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <NewTaskDialog />
       <CommandPalette />
       <ProjectDialog />
+      <InvitationsBanner />
     </TooltipProvider>
   );
 }
@@ -75,6 +87,20 @@ function Splash({ error }: { error?: string }) {
           <div className="max-w-sm text-center">
             <p className="font-display text-[15px] font-semibold">Impossible de démarrer BuildOS</p>
             <p className="mt-1 text-[13px] text-ink-3">{error}</p>
+            {supabaseConfigured && !isDemoBrowser() ? (
+              <div className="mt-4 flex justify-center gap-2">
+                <Button variant="secondary" size="sm" onClick={() => window.location.reload()}>
+                  Réessayer
+                </Button>
+                <Button
+                  variant="ink"
+                  size="sm"
+                  onClick={() => void import("@/lib/client/supabase/source").then((m) => m.signOut())}
+                >
+                  Se déconnecter
+                </Button>
+              </div>
+            ) : null}
           </div>
         ) : (
           <p className="text-[13px] text-ink-3">Ouverture de BuildOS…</p>

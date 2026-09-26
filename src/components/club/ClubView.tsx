@@ -8,6 +8,7 @@ import { AgendaSection } from "./AgendaSection";
 import { ClubAside } from "./ClubAside";
 import { ClubHero } from "./ClubHero";
 import { CLUB_TABS, isPast, type ClubTab, type ExpertBooking } from "./club-meta";
+import { loadMyBookings, recordExpertBooking } from "@/lib/client/supabase/buildos-sync";
 import { CommunitySection } from "./CommunitySection";
 import { ExpertsSection } from "./ExpertsSection";
 import { JoinBanner } from "./JoinBanner";
@@ -45,6 +46,12 @@ export function ClubView() {
     } catch {
       /* stockage indisponible */
     }
+    // Avec un compte : les réservations viennent de la base.
+    void loadMyBookings().then((list) => {
+      if (!list) return;
+      const names = new Map(useBuildOS.getState().experts.map((x) => [x.id, x.name]));
+      setBookings(list.map((b) => ({ id: b.id, expertId: b.expertId, expertName: names.get(b.expertId) ?? "Expert", slot: b.slot, shared: b.shared, price: b.price, at: b.at })));
+    });
   }, []);
 
   function go(t: ClubTab) {
@@ -58,6 +65,7 @@ export function ClubView() {
   }
 
   function addBooking(b: ExpertBooking) {
+    recordExpertBooking({ expertId: b.expertId, slot: b.slot, shared: b.shared, price: b.price });
     setBookings((prev) => {
       const next = [b, ...prev.filter((x) => x.expertId !== b.expertId)];
       try {

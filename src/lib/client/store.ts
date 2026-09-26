@@ -44,7 +44,7 @@ const SIDEBAR_KEY = "atelier.sidebar";
 interface AppState {
   ready: boolean;
   error: string | null;
-  mode: "fake" | "api";
+  mode: DataSource["mode"];
   projects: Project[];
   projectId: string | null;
   tasks: Record<string, Task>;
