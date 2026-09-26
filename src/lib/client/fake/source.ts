@@ -28,17 +28,20 @@ export class FakeActionError extends Error {}
  * Reproduit fidèlement les règles du back-office (actions, transitions) pour valider l'usage.
  */
 export class FakeDataSource implements DataSource {
-  readonly mode = "fake" as const;
-  private db = new FakeDb();
+  readonly mode: DataSource["mode"] = "fake";
+  protected db: FakeDb;
   private listeners = new Set<(msg: RealtimeMessage) => void>();
-  private sim: Simulator;
+  protected sim: Simulator;
   private loaded = false;
 
-  constructor() {
-    this.sim = new Simulator(this.db, (msg) => this.broadcast(msg));
+  /** `db` et `makeSim` sont injectables : la source Supabase réutilise ces règles avec une base synchronisée. */
+  constructor(db: FakeDb = new FakeDb(), makeSim?: (db: FakeDb, emit: (msg: RealtimeMessage) => void) => Simulator) {
+    this.db = db;
+    const emit = (msg: RealtimeMessage) => this.broadcast(msg);
+    this.sim = makeSim ? makeSim(db, emit) : new Simulator(db, emit);
   }
 
-  private broadcast(msg: RealtimeMessage) {
+  protected broadcast(msg: RealtimeMessage) {
     for (const l of this.listeners) l(msg);
   }
 
@@ -47,7 +50,7 @@ export class FakeDataSource implements DataSource {
     return () => this.listeners.delete(listener);
   }
 
-  private ensureLoaded() {
+  protected ensureLoaded() {
     if (this.loaded) return;
     this.loaded = true;
     if (!this.db.load()) {

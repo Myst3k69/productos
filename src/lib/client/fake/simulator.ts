@@ -17,6 +17,8 @@ export class Simulator {
   private active = new Map<string, AbortController>();
   private queue: string[] = [];
   private ticking = false;
+  /** Exécutions interrompues sans trace (une autre session a repris la tâche). */
+  private silenced = new Set<string>();
 
   constructor(
     private db: FakeDb,
@@ -51,6 +53,21 @@ export class Simulator {
       return true;
     }
     return false;
+  }
+
+  /** Arrête l'exécution locale sans rien écrire : la tâche est reprise ailleurs (autre onglet, coéquipier). */
+  drop(id: string): void {
+    const qi = this.queue.indexOf(id);
+    if (qi >= 0) {
+      this.queue.splice(qi, 1);
+      this.publishStatus();
+      return;
+    }
+    const ac = this.active.get(id);
+    if (ac) {
+      this.silenced.add(id);
+      ac.abort();
+    }
   }
 
   /** Reprend les tâches laissées en cours (rechargement de page). */
@@ -328,6 +345,7 @@ export class Simulator {
   }
 
   private interrupted(id: string) {
+    if (this.silenced.delete(id)) return;
     const t = this.db.getTask(id);
     if (!t) return;
     const status = t.status === "cancelled" ? "cancelled" : "idle";

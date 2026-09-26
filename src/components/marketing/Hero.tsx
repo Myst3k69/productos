@@ -40,10 +40,10 @@ export function Hero() {
               Démarrer un projet
               <ArrowRight className={ctaArrow} aria-hidden />
             </Link>
-            <Link href="/home" className={cta("secondary", "lg")}>
+            <a href="/demo" className={cta("secondary", "lg")}>
               <Play className="h-3.5 w-3.5 fill-current" aria-hidden />
               Voir la démo
-            </Link>
+            </a>
           </div>
 
           <ul className="reveal mt-5 flex flex-wrap gap-x-5 gap-y-2" style={{ "--i": 5 } as React.CSSProperties}>

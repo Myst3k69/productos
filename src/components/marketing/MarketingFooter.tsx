@@ -26,7 +26,7 @@ const COLS: { title: string; links: { l: string; href: string }[] }[] = [
   {
     title: "Ressources",
     links: [
-      { l: "Voir la démo", href: "/home" },
+      { l: "Voir la démo", href: "/demo" },
       { l: "Cas d'usage", href: "#cas-usage" },
       { l: "Questions fréquentes", href: "#faq" },
       { l: "Guide : écrire une bonne spec", href: "/club" },

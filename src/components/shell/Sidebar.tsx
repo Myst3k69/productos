@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeftClose, PanelLeftOpen, Plus } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Plus, ShieldCheck } from "lucide-react";
 import { useStore } from "@/lib/client/store";
+import { useIsAdmin } from "@/lib/client/supabase/session";
 import { cn } from "@/lib/client/utils";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Wordmark, BrandMark } from "./Brand";
@@ -23,6 +24,7 @@ export function Sidebar() {
   const collapsed = storedCollapsed || narrow;
   const toggleSidebar = useStore((s) => s.toggleSidebar);
   const counters = useNavCounters();
+  const admin = useIsAdmin();
 
   return (
     <aside
@@ -88,6 +90,7 @@ export function Sidebar() {
 
       {/* Réglages + profil */}
       <div className={cn("flex shrink-0 flex-col gap-2 border-t border-line pb-3 pt-2", collapsed ? "px-2" : "px-3")}>
+        {admin ? <SidebarNavItem item={ADMIN_ITEM} active={false} collapsed={collapsed} /> : null}
         <SidebarNavItem item={SETTINGS_ITEM} active={isActivePath(pathname, SETTINGS_ITEM.href)} collapsed={collapsed} />
         <SidebarProfile collapsed={collapsed} />
         {collapsed ? (
@@ -101,6 +104,8 @@ export function Sidebar() {
     </aside>
   );
 }
+
+const ADMIN_ITEM = { href: "/admin", label: "Administration", icon: ShieldCheck };
 
 function useNarrowScreen(): boolean {
   const [narrow, setNarrow] = useState(false);

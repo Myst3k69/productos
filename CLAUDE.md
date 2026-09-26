@@ -2,16 +2,17 @@
 
 **BuildOS** (anciennement « Atelier ») — « De l'idée à la production » — est le système d'exploitation des entrepreneurs pour créer et faire évoluer des applications avec l'IA. Il intègre la brique communautaire **Build Club** (buildclub.tech : ateliers, labs, experts, communauté) et le format intensif **StartupWeek** (7 jours pour lancer un MVP). Cœur du produit : un tableau de tâches où un fondateur écrit une spécification et où **l'IA prend la main immédiatement** : cadrage, plan, fabrication, contrôle, puis **validation humaine (HITL)** et intégration (dépôt git ou dossier de livrables). Public : participants de startupweek.tech (bootcamp MVP de 7 jours). Interface **en français**.
 
-Le dépôt contient deux couches :
+Le dépôt contient trois couches :
 
-- **Prototype front (mode par défaut)** — données simulées côté client, IA simulée par `src/lib/client/fake/*`. C'est ce qu'on construit et teste maintenant : valider l'usage, pas la technique.
-- **Back-office réel (en veille)** — `src/lib/server/*`, `src/app/api/*`, SQLite + Claude Agent SDK. Ne pas le supprimer, ne pas s'en servir, ne pas le casser (`pnpm typecheck` doit rester vert).
+- **Prototype front** — règles du pipeline et IA simulée côté client (`src/lib/client/fake/*`). Utilisé tel quel pour la démo (`/demo`) et quand Supabase n'est pas configuré. On valide l'usage, pas la technique.
+- **Comptes & back-office Supabase (mode par défaut dès que Supabase est configuré)** — authentification, équipes, persistance de toutes les données, temps réel, administration (`src/lib/supabase/*`, `src/lib/client/supabase/*`, `supabase/migrations/*`, `/admin`). L'IA reste simulée (voir « Supabase » plus bas).
+- **Moteur réel (en veille)** — `src/lib/server/*`, `src/app/api/*`, SQLite + Claude Agent SDK. Ne pas le supprimer, ne pas s'en servir, ne pas le casser (`pnpm typecheck` doit rester vert).
 
 ## Commandes
 
 - `pnpm typecheck` — obligatoire avant de rendre la main (zéro erreur).
 - Le serveur de dev tourne déjà sur http://localhost:3000 (ne pas en lancer un autre). `pnpm build` n'est pas requis.
-- Ne pas ajouter de dépendance. Disponibles : `react 19`, `next 16`, `tailwindcss 4`, `radix-ui` (paquet unifié : `import { Dialog, Popover, ... } from "radix-ui"`), `@dnd-kit/core|sortable|utilities|modifiers`, `motion` (`import { motion, AnimatePresence } from "motion/react"`), `lucide-react`, `cmdk`, `sonner`, `react-markdown` + `remark-gfm`, `parse-diff`, `date-fns` (locale `fr`), `zustand`, `zod`, `clsx`, `tailwind-merge`, `class-variance-authority`, `nanoid`.
+- Ne pas ajouter de dépendance (exception validée : `@supabase/supabase-js` et `@supabase/ssr`). Disponibles : `react 19`, `next 16`, `tailwindcss 4`, `radix-ui` (paquet unifié : `import { Dialog, Popover, ... } from "radix-ui"`), `@dnd-kit/core|sortable|utilities|modifiers`, `motion` (`import { motion, AnimatePresence } from "motion/react"`), `lucide-react`, `cmdk`, `sonner`, `react-markdown` + `remark-gfm`, `parse-diff`, `date-fns` (locale `fr`), `zustand`, `zod`, `clsx`, `tailwind-merge`, `class-variance-authority`, `nanoid`.
 
 ## Architecture (front)
 
@@ -82,9 +83,11 @@ Référence visuelle : maquette fournie par le fondateur (landing BuildOS). Blan
 | `/dashboard` | Analytics du pipeline | `src/components/views/dashboard/` |
 | `/audits` | Audits & santé de l'application | `src/components/audits/` |
 | `/club` | Build Club : ateliers, labs, experts, communauté, StartupWeek | `src/components/club/` |
-| `/settings` | Réglages | `src/components/settings/` |
+| `/settings` | Réglages (+ Compte et Équipe avec Supabase) | `src/components/settings/` |
+| `/login` `/signup` `/forgot-password` `/reset-password` | Authentification e-mail + mot de passe | `src/components/auth/` |
+| `/admin` `/admin/users` `/admin/projects` `/admin/ai` `/admin/club` `/admin/journal` | Administration (rôle `admin`) | `src/components/admin/` |
 
-Routes de l'app dans `src/app/(app)/` (coquille `AppShell` ; `/onboarding` rendu sans barre latérale). Landing dans `src/app/(marketing)/`.
+Routes de l'app dans `src/app/(app)/` (coquille `AppShell` ; `/onboarding` rendu sans barre latérale). Landing dans `src/app/(marketing)/`. Authentification dans `src/app/(auth)/` ; retours d'e-mail `src/app/auth/confirm/route.ts` ; démo `src/app/demo/` (pose le cookie `buildos_demo`) ; administration `src/app/admin/` (mise en page serveur qui vérifie le rôle). `src/proxy.ts` (ex-middleware, Next 16) rafraîchit la session et protège les routes.
 
 ### Socle BuildOS (`src/lib/buildos/`)
 
@@ -93,6 +96,23 @@ Routes de l'app dans `src/app/(app)/` (coquille `AppShell` ; `/onboarding` rendu
 - `generate.ts` : `DELIVERABLE_META`, `DELIVERABLE_KINDS`, `APP_TYPE_META`, `guessAppType()`, `suggestFeatures()`, `generateDeliverable()`, `generateFoundations()`, `initialTasksFromBrief()`, `routeAgent(task, agents, rules, strategy)`.
 - `store.ts` : `useBuildOS` (zustand persisté `buildos.v1`) — `profile`, `agents`, `routing`, `strategy`, `briefs`, `deliverables[projectId]`, `releases[projectId]`, `audits[projectId]`, `journeys[projectId]`, `events`, `labs`, `posts`, `experts`, `assistantOpen` ; actions `setProfile`, `completeOnboarding`, `ensureProject(project)` (**à appeler** avant de lire les données d'un projet), `setBrief`, `toggleAgent`, `connectAgent`, `setStrategy`, `setRouting`, `generateFoundations(project, {stagger})`, `regenerateDeliverable`, `validateDeliverable`, `updateDeliverableContent`, `approveRelease`, `promoteRelease`, `rollbackRelease`, `markFindingConverted`, `runAudit`, `toggleJourneyStep`, `registerEvent`, `joinLab`, `likePost`, `addPost`, `joinClub`, `setAssistantOpen`, `resetBuildOS`.
 - Tâches, projets et pipeline IA restent dans `@/lib/client/store` (`useStore`). Créer une tâche depuis une nouvelle brique : `useStore.getState().createTask({...})`.
+
+## Supabase (comptes, équipes, données, admin)
+
+Projet Supabase `buildos` (réf. `jgzgavogcaktigpzmsda`, région Paris). Variables : `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (clé publique, sans danger côté navigateur). Aucune clé `service_role` n'est utilisée par l'application.
+
+**Choix de la source** (`getDataSource()`) : `NEXT_PUBLIC_ATELIER_MODE=api` → moteur réel ; sinon Supabase configuré et pas de cookie démo → `SupabaseDataSource` ; sinon `FakeDataSource`.
+
+**Principe** : `SupabaseDataSource` hérite de `FakeDataSource` (mêmes règles d'actions, même simulateur) avec une base `SupabaseDb` (hérite de `FakeDb`) dont chaque écriture part dans une file ordonnée (`SyncQueue` : fusion des patchs, lots d'insertions). Les changements des autres (coéquipiers, admin) arrivent par Supabase Realtime (`tasks`, `task_events`, `projects`, `project_members`). Une tâche en cours n'est simulée que par **un seul onglet** : bail `tasks.sim_owner` / `sim_heartbeat` (RPC `claim_task_lease`, `renew_task_leases`), repris si périmé (25 s).
+Le store BuildOS (`useBuildOS`) est inchangé : `buildos-sync.ts` l'hydrate depuis la base puis écrit chaque différence (comparaison par identité d'objet : **garder les actions du store immuables**).
+
+**Fichiers** : `src/lib/supabase/` (`config.ts`, `client.ts` navigateur, `server.ts` serveur, `database.types.ts` à régénérer après migration) ; `src/lib/client/supabase/` (`source.ts`, `db.ts`, `sync-queue.ts`, `mappers.ts`, `buildos-sync.ts`, `session.ts` → `useSession`, `useProjectRole`, `useIsAdmin`, `plans.ts`).
+
+**Schéma** (`supabase/migrations/`, appliquées dans l'ordre) : `profiles` (1 par compte, créé par trigger ; `app_role` founder|admin, `plan`, `ai_quota_usd` (0 = illimité), `suspended_at`), `projects` (+ `owner_id`), `project_members` (owner|member|viewer), `project_invitations`, `tasks`, `task_events` (id = ms×1000+n généré côté client), `artifacts`, `user_preferences`, `project_briefs`, `deliverables`, `releases`, `audit_reports`, `journey_steps`, `ai_usage` (registre alimenté par trigger quand `tasks.cost_usd` augmente, imputé au propriétaire du projet), Build Club (`club_events` + `club_event_registrations`, `club_labs` + `club_lab_members`, `experts` + `expert_bookings`, `club_posts` + `club_post_likes` ; compteurs maintenus par triggers), `admin_audit_log`.
+
+**Sécurité** : RLS sur toutes les tables. Fonctions d'aide dans le schéma `private` (non exposé) : `is_admin()`, `is_active_user()`, `project_role(pid)`, `is_project_member`, `can_edit_project` (owner/member), `is_project_owner`. Un compte suspendu ne voit plus aucun projet. Colonnes sensibles de `profiles` (`app_role`, `plan`, quota, suspension) modifiables **uniquement** via les RPC admin (`admin_set_role`, `admin_set_suspended`, `admin_set_quota`, `admin_cancel_task`, `admin_moderate_post`, `admin_set_booking_status`, lectures `admin_overview`, `admin_list_users`, `admin_list_projects`, `admin_cost_by_day`, `admin_event_registrations`, `admin_list_bookings`) qui vérifient le rôle et écrivent au journal. Nouvelle table = RLS + politiques + `revoke all … from anon` dans la même migration, puis conseillers Supabase (sécurité et performance).
+
+**Conventions** : toute évolution du schéma = nouveau fichier `supabase/migrations/AAAAMMJJHHMMSS_nom.sql` (appliqué au projet) + mise à jour de `database.types.ts` + mappers. Les composants lisent la session via `useSession` ; le mode compte se teste avec `useSession((s) => s.mode === "cloud")` ou `useStore((s) => s.mode === "supabase")`.
 
 ## Conventions de code
 

@@ -61,10 +61,10 @@ export function FinalCta() {
                 Démarrer gratuitement
                 <ArrowRight className={ctaArrow} aria-hidden />
               </Link>
-              <Link href="/home" className={cta("ghostInverse", "lg")}>
+              <a href="/demo" className={cta("ghostInverse", "lg")}>
                 <Play className="h-3.5 w-3.5 fill-current" aria-hidden />
                 Voir la démo
-              </Link>
+              </a>
             </div>
             <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-paper/60">
               {["Aucune carte bancaire", "Prêt en 2 minutes", "Votre code vous appartient"].map((r) => (

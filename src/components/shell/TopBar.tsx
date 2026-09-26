@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, Moon, Plus, Search, SlidersHorizontal, Sparkles, Sun, X } from "lucide-react";
+import { Bell, Eye, Moon, Plus, Search, SlidersHorizontal, Sparkles, Sun, X } from "lucide-react";
 import { useStore, useProjectTasks, useAttentionCount, useFilteredTasks } from "@/lib/client/store";
 import { useBuildOS } from "@/lib/buildos/store";
 import { TASK_TYPES, TASK_TYPE_META, PRIORITIES, PRIORITY_META } from "@/lib/domain/types";
@@ -12,6 +12,7 @@ import { Kbd } from "@/components/ui/misc";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Dropdown, DropdownCheckItem, DropdownContent, DropdownLabel, DropdownSeparator, DropdownTrigger, DropdownItem } from "@/components/ui/dropdown";
 import { TypeIcon } from "@/components/shared/task-bits";
+import { useProjectRole } from "@/lib/client/supabase/session";
 import { useTheme } from "./theme";
 import { isProjectView, routeMeta } from "./nav";
 
@@ -23,6 +24,8 @@ export function TopBar() {
   const openComposer = useStore((s) => s.openComposer);
   const assistantOpen = useBuildOS((s) => s.assistantOpen);
   const setAssistantOpen = useBuildOS((s) => s.setAssistantOpen);
+  const role = useProjectRole(useStore((s) => s.projectId));
+  const readOnly = role === "viewer";
 
   return (
     <header className="@container/top relative z-10 flex h-[60px] shrink-0 items-center gap-3 border-b border-line bg-paper/85 px-5 backdrop-blur-sm">
@@ -34,6 +37,14 @@ export function TopBar() {
       {projectView ? <TaskFilters /> : null}
 
       <div className="flex-1" />
+
+      {readOnly ? (
+        <Tooltip content="Vous êtes lecteur de ce projet : vous voyez tout, sans rien modifier.">
+          <span className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-line-2 bg-card px-2.5 text-[12px] font-medium text-ink-2">
+            <Eye className="h-3.5 w-3.5" aria-hidden /> Lecture seule
+          </span>
+        </Tooltip>
+      ) : null}
 
       <Tooltip content={resolved === "dark" ? "Thème clair" : "Thème sombre"}>
         <Button variant="ghost" size="icon" onClick={toggle} aria-label="Changer de thème" className="shrink-0">
@@ -58,7 +69,7 @@ export function TopBar() {
         </button>
       </Tooltip>
 
-      <Button variant="ink" onClick={() => openComposer()} className="shrink-0 pl-3" aria-label="Nouvelle tâche">
+      <Button variant="ink" onClick={() => openComposer()} className="shrink-0 pl-3" aria-label="Nouvelle tâche" disabled={readOnly}>
         <Plus className="h-4 w-4" aria-hidden />
         <span className="hidden @[520px]/top:inline">Nouvelle tâche</span>
         <Kbd className="ml-1 hidden border-paper/20 bg-paper/10 text-paper/80 @[520px]/top:inline-flex">N</Kbd>

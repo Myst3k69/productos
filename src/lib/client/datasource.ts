@@ -29,11 +29,12 @@ export interface ProbeOutcome {
 
 /**
  * Source de données de l'application.
- * - `fake` : tout en mémoire + localStorage, avec un simulateur d'IA (mode prototype, par défaut)
- * - `api`  : le back-office Next (SQLite + Claude Agent SDK), conservé pour plus tard
+ * - `fake`     : tout en mémoire + localStorage, avec un simulateur d'IA (démo, ou Supabase non configuré)
+ * - `supabase` : comptes, équipes et données dans Supabase ; l'IA reste simulée côté client
+ * - `api`      : le back-office Next (SQLite + Claude Agent SDK), conservé pour plus tard
  */
 export interface DataSource {
-  readonly mode: "fake" | "api";
+  readonly mode: "fake" | "api" | "supabase";
   bootstrap(): Promise<BootstrapData>;
   subscribe(listener: (msg: RealtimeMessage) => void): () => void;
 
@@ -57,17 +58,30 @@ export interface DataSource {
   reset(): Promise<void>;
 }
 
-let instance: DataSource | null = null;
+let instance: Promise<DataSource> | null = null;
 
-export async function getDataSource(): Promise<DataSource> {
-  if (instance) return instance;
-  const mode = process.env.NEXT_PUBLIC_ATELIER_MODE === "api" ? "api" : "fake";
-  if (mode === "api") {
-    const { ApiDataSource } = await import("./api-source");
-    instance = new ApiDataSource();
-  } else {
-    const { FakeDataSource } = await import("./fake/source");
-    instance = new FakeDataSource();
+/** Source unique (même si plusieurs composants l'appellent en même temps au démarrage). */
+export function getDataSource(): Promise<DataSource> {
+  if (!instance) {
+    instance = createDataSource().catch((err) => {
+      instance = null;
+      throw err;
+    });
   }
   return instance;
+}
+
+async function createDataSource(): Promise<DataSource> {
+  const { supabaseConfigured, isDemoBrowser } = await import("@/lib/supabase/config");
+  const mode = process.env.NEXT_PUBLIC_ATELIER_MODE === "api" ? "api" : supabaseConfigured && !isDemoBrowser() ? "supabase" : "fake";
+  if (mode === "api") {
+    const { ApiDataSource } = await import("./api-source");
+    return new ApiDataSource();
+  }
+  if (mode === "supabase") {
+    const { SupabaseDataSource } = await import("./supabase/source");
+    return SupabaseDataSource.create();
+  }
+  const { FakeDataSource } = await import("./fake/source");
+  return new FakeDataSource();
 }

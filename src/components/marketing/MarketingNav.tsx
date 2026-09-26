@@ -64,7 +64,7 @@ export function MarketingNav() {
         </ul>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/home" className={cta("secondary", "sm", "hidden sm:inline-flex")}>
+          <Link href="/login" className={cta("secondary", "sm", "hidden sm:inline-flex")}>
             Se connecter
           </Link>
           <Link href="/onboarding" className={cta("ink", "sm", "hidden sm:inline-flex")}>
@@ -104,7 +104,7 @@ export function MarketingNav() {
           ))}
         </ul>
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <Link href="/home" className={cta("secondary", "md")}>
+          <Link href="/login" className={cta("secondary", "md")}>
             Se connecter
           </Link>
           <Link href="/onboarding" className={cta("ink", "md")}>
